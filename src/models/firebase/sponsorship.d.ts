@@ -1,4 +1,4 @@
-import { Socials } from "../socials"
+import { Socials } from "./socials"
 import { EventShort } from "./event/event-short"
 
 interface Sponsorship

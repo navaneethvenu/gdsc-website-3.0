@@ -3,7 +3,7 @@ import LinkedinIcon from "@/../public/assets/icons/linkedin-logo.svg";
 import { Globe, InstagramLogo, TwitterLogo } from "@phosphor-icons/react";
 import GitHubLogo from "@/../public/assets/icons/github-logo.svg";
 import DiscordLogo from "@/../public/assets/icons/discord-logo.svg";
-import Socials from "@/models/socials";
+import Socials from "@/models/firebase/socials";
 import { platform } from "os";
 
 interface SocialRowProps {
