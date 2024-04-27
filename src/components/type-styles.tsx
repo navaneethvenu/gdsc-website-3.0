@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { device } from "./breakpoints";
 
 const Title = styled.h1`
-  font-size: 64px;
+  font-size: 60px;
   font-weight: 500;
   line-height: 1.1;
   letter-spacing: -0.02em;
