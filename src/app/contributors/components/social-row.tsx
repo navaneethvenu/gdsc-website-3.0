@@ -2,16 +2,13 @@ import React from "react";
 import LinkedinIcon from "@/../public/assets/icons/linkedin-logo.svg";
 import { Globe, InstagramLogo, TwitterLogo } from "@phosphor-icons/react";
 import GitHubLogo from "@/../public/assets/icons/github-logo.svg";
+import DiscordLogo from "@/../public/assets/icons/discord-logo.svg";
+import Socials from "@/models/socials";
+import { platform } from "os";
 
 interface SocialRowProps {
   grow?: boolean;
-  socials: {
-    twitter?: string;
-    linkedin?: string;
-    instagram?: string;
-    github?: string;
-    website?: string;
-  };
+  socials: Socials;
 }
 
 interface SocialTileProps {
@@ -23,69 +20,30 @@ export default function SocialRow({ socials, grow = true }: SocialRowProps) {
   const hoverClass = " group-hover/socialtile:text-onBackgroundEmPrimary";
   return (
     <div className={`socials flex flex-wrap gap-2 ${grow ? "w-full" : ""}`}>
-      {socials.instagram && (
-        <SocialTile
-          href={"https://instagram.com/" + socials.instagram}
-          icon={
-            <InstagramLogo
-              className={"text-onBackgroundSecondary" + hoverClass}
-              weight="fill"
-              width={20}
-              height={20}
-            ></InstagramLogo>
-          }
-        ></SocialTile>
-      )}
-      {socials.twitter && (
-        <SocialTile
-          href={"https://twitter.com/" + socials.twitter}
-          icon={
-            <TwitterLogo
-              className={"text-onBackgroundSecondary" + hoverClass}
-              weight="fill"
-              width={20}
-              height={20}
-            ></TwitterLogo>
-          }
-        ></SocialTile>
-      )}
-      {socials.linkedin && (
-        <SocialTile
-          href={"https://linkedin.com/in/" + socials.linkedin}
-          icon={
-            <LinkedinIcon
-              className={"text-onBackgroundSecondary" + hoverClass}
-              width={20}
-              height={20}
-            ></LinkedinIcon>
-          }
-        ></SocialTile>
-      )}
-      {socials.github && (
-        <SocialTile
-          href={"https://github.com/" + socials.github}
-          icon={
-            <GitHubLogo
-              className={"text-onBackgroundSecondary" + hoverClass}
-              width={20}
-              height={20}
-            ></GitHubLogo>
-          }
-        ></SocialTile>
-      )}
+      {Object.entries(socials).map(([platform, handle]) => {
+        if (handle && handle.trim() !== "") {
+          let baseURL = "";
+          Object.keys(SocialURLs).find((socialURLplatform) => {
+            if (socialURLplatform.toLowerCase() === platform.toLowerCase()) {
+              baseURL =
+                SocialURLs[socialURLplatform as keyof typeof SocialURLs];
+            }
+          });
 
-      {socials.website && (
-        <SocialTile
-          href={"https://" + socials.website}
-          icon={
-            <Globe
-              className={"text-onBackgroundSecondary" + hoverClass}
-              width={20}
-              height={20}
-            ></Globe>
-          }
-        ></SocialTile>
-      )}
+          return (
+            <SocialTile
+              key={platform}
+              href={baseURL + handle}
+              icon={getSocialIcon(
+                platform.toLowerCase(),
+                "text-onBackgroundSecondary" + hoverClass
+              )}
+            />
+          );
+        } else {
+          return null;
+        }
+      })}
     </div>
   );
 }
@@ -98,4 +56,69 @@ function SocialTile({ href, icon }: SocialTileProps) {
       </div>
     </a>
   );
+}
+
+enum SocialURLs {
+  Instagram = "https://instagram.com/",
+  Twitter = "https://twitter.com/",
+  Discord = "https://discord.com/",
+  Linkedin = "https://www.linkedin.com/in/",
+  LinkedinCompany = "https://www.linkedin.com/company/",
+  Email = "mailto:",
+  Github = "https://github.com/",
+  Website = "https://",
+}
+
+function getSocialIcon(platform: string, className: string): JSX.Element {
+  let icon;
+  switch (platform) {
+    case "instagram":
+      icon = (
+        <InstagramLogo
+          className={className}
+          weight="fill"
+          width={20}
+          height={20}
+        ></InstagramLogo>
+      );
+      break;
+    case "twitter":
+      icon = (
+        <TwitterLogo
+          className={className}
+          weight="fill"
+          width={20}
+          height={20}
+        ></TwitterLogo>
+      );
+      break;
+    case "linkedin":
+    case "linkedincompany":
+      icon = (
+        <LinkedinIcon
+          className={className}
+          width={20}
+          height={20}
+        ></LinkedinIcon>
+      );
+      break;
+    case "discord":
+      icon = (
+        <DiscordLogo className={className} width={20} height={20}></DiscordLogo>
+      );
+      break;
+    case "github":
+      icon = (
+        <GitHubLogo className={className} width={20} height={20}></GitHubLogo>
+      );
+      break;
+    case "website":
+      icon = <Globe className={className} width={20} height={20}></Globe>;
+      break;
+    default:
+      <></>;
+      break;
+  }
+
+  return icon!;
 }
