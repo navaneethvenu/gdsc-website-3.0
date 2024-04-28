@@ -20,7 +20,7 @@ export default function About() {
   return (
     <div className="bg-backgroundPrimary flex flex-col overflow-x-hidden border-b border-borderPrimary">
             <div className="relative bg-backgroundEmPrimary bg-center bg-no-repeat bg-cover !pb-20 min-h-[50vh] justify-center overflow-hidden">
-                <div className="text-center col-start-1 md:col-start-2 col-end-5 md:col-end-8 lg:col-end-12 flex flex-col gap-8 items-center justify-center p-16">  
+                <div className="text-center col-start-1 md:col-start-2 col-end-5 md:col-end-8 lg:col-end-12 flex flex-col gap-8 items-center justify-center p-6 lg:p-16">  
                     <div className="flex flex-col gap-6 items-center">
                         <Heading3 className="text-onBackgroundSecondary w-full">
                         Who we are
@@ -50,10 +50,10 @@ export default function About() {
             </div>
 
             
-            <div className="relative bg-center bg-no-repeat bg-cover p-32 !pb-0 min-h-[50vh] justify-center">
-            <div className="text-center flex flex-col gap-8 items-center justify-center -mt-48">
-                <div className="flex text-left gap-16">
-                    <div className="bg-backgroundSecondary flex flex-col gap-4 items-left p-20 h-fit">  
+            <div className="relative bg-center bg-no-repeat bg-cover p-10 lg:p-32 !pb-0 min-h-[50vh] justify-center">
+            <div className="text-center flex flex-col gap-8 items-center justify-center -mt-28 lg:-mt-48">
+                <div className="flex flex-col text-left gap-12 lg:flex-row lg:gap-16">
+                    <div className="bg-backgroundSecondary flex flex-col gap-4 items-left p-8 h-fit lg:p-20">  
                         <Heading2 className="text-onBackgroundPrimary w-full">
                             About Google Developer Student Clubs
                         </Heading2>
@@ -66,7 +66,7 @@ export default function About() {
                             <a className="text-onBackgroundPrimary underline underline-offset-4 "href="/">Learn more about the Programme.</a>
                         </BodyLarge>
                     </div>
-                    <div className="bg-backgroundEmSecondary flex flex-col gap-4 items-left p-20 h-fit">  
+                    <div className="bg-backgroundEmSecondary flex flex-col gap-4 items-left p-8 h-fit lg:p-20">  
                         <Heading2 className="text-onBackgroundPrimary w-full">
                             About GDSC MBCET
                         </Heading2>
