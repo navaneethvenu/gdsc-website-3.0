@@ -1,6 +1,5 @@
 export interface EventSchedule
 {
-    id: string,
     name: string,
     description: string,
     start_date: string,

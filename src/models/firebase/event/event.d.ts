@@ -6,7 +6,7 @@ import { EventShort } from "./event-short";
 import { Skill } from "./skill";
 
 interface Event extends EventShort{
-    schedule: {[id:string]:EventSchedule},
+    schedule: EventSchedule[],
     location?:string,
     description:string,
     
