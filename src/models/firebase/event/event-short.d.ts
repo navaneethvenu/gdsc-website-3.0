@@ -10,6 +10,7 @@ interface EventShort{
     description_short: string,
     start_date: string,
     status: EventStatus,
-    category: EventCategory
+    category: EventCategory[]
     type: EventType
+    iteration?: number,
 }
