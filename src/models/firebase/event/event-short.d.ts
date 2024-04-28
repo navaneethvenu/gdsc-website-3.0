@@ -7,7 +7,7 @@ interface EventShort{
     id: string,
     name: string,
     imageURL: string,
-    description: string,
+    description_short: string,
     start_date: string,
     status: EventStatus,
     category: EventCategory

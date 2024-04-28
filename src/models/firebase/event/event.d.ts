@@ -8,6 +8,7 @@ import { Skill } from "./skill";
 interface Event extends EventShort{
     schedule: {[id:string]:EventSchedule},
     location?:string,
+    description:string,
     
     skills:{[id:string]:Skill},
     prerequisites:{[id:string]:Skill}
