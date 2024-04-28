@@ -1,4 +1,5 @@
 import { Socials } from "../socials";
+import { Sponsorship } from "../sponsorship";
 
 export interface Entity
 {
@@ -7,5 +8,5 @@ export interface Entity
     imageURL: string,
     description: string,
     socials: Socials
-    sponsorships: Sponsorship[],
+    sponsorships?: {[id:string]:Sponsorship},
 }

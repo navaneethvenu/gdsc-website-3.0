@@ -1,4 +1,4 @@
-import { EventCategory } from "./event-category.";
+import { EventCategory } from "./event-category";
 import { EventStatus } from "./event-status";
 import { EventType } from "./event-type";
 

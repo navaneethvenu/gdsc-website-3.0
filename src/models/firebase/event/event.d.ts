@@ -1,20 +1,22 @@
 import { Individual } from "../entity/individual";
+import { Sponsorship } from "../sponsorship";
 import { Testimonial } from "../testimonial";
 import { EventSchedule } from "./event-schedule";
 import { EventShort } from "./event-short";
 import { Skill } from "./skill";
 
 interface Event extends EventShort{
-    schedule: EventSchedule[],
+    schedule: {[id:string]:EventSchedule},
     location?:string,
     
-    skills:Skill[],
-    prerequisites:Skill[],
+    skills:{[id:string]:Skill},
+    prerequisites:{[id:string]:Skill}
     
-    mentors:Individual[],
+    mentors:{[id:string]:Individual}
     
     gallery: string[],
-    testimonials: Testimonial[],
+    testimonials: {[id:string]:Testimonial},
+    sponsors: {[id:string]:Sponsorship}
     
     displayShedule: boolean,
 }
