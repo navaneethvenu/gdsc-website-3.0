@@ -47,35 +47,86 @@ const formData: FormPage[] = [
     pageName: "Page 1",
     formGroups: [
       {
-        groupName: "Group 1",
+        groupName: "Interests and Expertise",
         formItems: [
           {
-            fieldName: "username",
+            fieldName: "areasOfInterest",
             fieldType: FormFieldType.text,
-            label: "Username",
-            description: "This is your public display name.",
-            placeholder: "Enter your username",
-            required: false,
-            validationRules: z
-              .string()
-              .min(2, { message: "Username must be at least 2 characters." }),
+            label: "Areas of Interest",
+            description:
+              "Enter the fields or areas you're interested in (e.g., Web Development, Machine Learning, Cybersecurity, etc.).",
+            placeholder: "E.g., Web Development, Data Science",
+            required: true,
+            validationRules: z.string().min(2, {
+              message: "Please enter at least one area of interest.",
+            }),
           },
           {
-            fieldName: "email",
-            fieldType: FormFieldType.email,
-            label: "Email",
-            placeholder: "Enter your email",
-            description: "This is your public email address.",
-            required: true,
-            validationRules: z
-              .string()
-              .email({ message: "Invalid email address" }),
+            fieldName: "programmingLanguages",
+            fieldType: FormFieldType.text,
+            label: "Programming Languages",
+            placeholder: "E.g., Python, Java, JavaScript",
+            description: "List any programming languages you're familiar with.",
+            required: false,
+            validationRules: z.string().optional(),
           },
         ],
       },
     ],
   },
-  // Add more pages and groups as needed
+  {
+    pageName: "Page 2",
+    formGroups: [
+      {
+        groupName: "Event Expectations",
+        formItems: [
+          {
+            fieldName: "eventExpectations",
+            fieldType: FormFieldType.text,
+            label: "Event Expectations",
+            description:
+              "What are your expectations from the 'Le Debut' freshers event? What would you like to learn or explore?",
+            placeholder:
+              "E.g., Learn about different career paths, network with industry professionals",
+            required: true,
+            validationRules: z
+              .string()
+              .min(10, { message: "Please provide a detailed response." }),
+          },
+          {
+            fieldName: "preferredSessions",
+            fieldType: FormFieldType.text,
+            label: "Preferred Sessions",
+            placeholder: "E.g., Tech Talk, Hackathon, Coding Workshop",
+            description:
+              "List any specific types of sessions or activities you'd be interested in attending during the event.",
+            required: false,
+            validationRules: z.string().optional(),
+          },
+        ],
+      },
+    ],
+  },
+  {
+    pageName: "Page 3",
+    formGroups: [
+      {
+        groupName: "Additional Information",
+        formItems: [
+          {
+            fieldName: "otherComments",
+            fieldType: FormFieldType.text,
+            label: "Other Comments or Suggestions",
+            description:
+              "If you have any other comments, suggestions, or specific requirements for the event, please mention them here.",
+            placeholder: "E.g., Accessibility concerns, preferred time slots",
+            required: false,
+            validationRules: z.string().optional(),
+          },
+        ],
+      },
+    ],
+  },
 ];
 
 // Generate the Zod schema from the formData
@@ -98,56 +149,50 @@ const FormSchema = z.object(
   }, {} as { [key: string]: z.ZodTypeAny })
 );
 
-function createFormData({ control, form }: { control: any; form: any }) {
+function createFormData({
+  control,
+  form,
+  currentPage,
+}: {
+  control: any;
+  form: any;
+  currentPage: number;
+}) {
   const formElements: ReactElement[] = [];
 
-  Object.entries(FormSchema.shape).forEach(([pageName, pageSchema]) => {
-    const pageZod = pageSchema as z.ZodObject<any>; // Cast pageSchema to ZodObject<any>
+  const page = formData[currentPage];
+  const pageZod = FormSchema.shape[page.pageName] as z.ZodObject<any>;
+
+  formElements.push(
+    <FormItem key={`page-${page.pageName}`}>{`Page ${page.pageName}`}</FormItem>
+  );
+
+  Object.entries(pageZod.shape).forEach(([groupName, groupSchema]) => {
+    const groupZod = groupSchema as z.ZodObject<any>;
     formElements.push(
-      <FormItem key={`page-${pageName}`}>{`Page ${pageName}`}</FormItem>
+      <FormItem
+        key={`group-${page.pageName}-${groupName}`}
+      >{`Group ${groupName}`}</FormItem>
     );
 
-    Object.entries(pageZod.shape).forEach(([groupName, groupSchema]) => {
-      const groupZod = groupSchema as z.ZodObject<any>; // Cast groupSchema to ZodObject<any>
-      formElements.push(
-        <FormItem
-          key={`group-${pageName}-${groupName}`}
-        >{`Group ${groupName}`}</FormItem>
+    Object.entries(groupZod.shape).forEach(([fieldName, fieldSchema]) => {
+      const fieldZod = fieldSchema as z.ZodTypeAny;
+      const label = fieldName;
+      const fieldValue = form.getValues(
+        `${page.pageName}.${groupName}.${fieldName}`
       );
 
-      Object.entries(groupZod.shape).forEach(([fieldName, fieldSchema]) => {
-        const fieldZod = fieldSchema as z.ZodTypeAny; // Cast fieldSchema to ZodTypeAny
-        const label = fieldName;
-        const fieldValue = form.getValues(
-          `${pageName}.${groupName}.${fieldName}`
-        );
-
-        formElements.push(
-          <FormField
-            key={`field-${pageName}-${groupName}-${fieldName}`}
-            control={control}
-            name={`${pageName}.${groupName}.${fieldName}`}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{label}</FormLabel>
-                <FormControl>
-                  <Input
-                    type={
-                      formData
-                        .flatMap((page) => page.formGroups)
-                        .flatMap((group) =>
-                          group.formItems.filter(
-                            (item) => item.fieldName === fieldName
-                          )
-                        )
-                        .map((item) => item.fieldType)[0]
-                    }
-                    placeholder={label}
-                    {...field}
-                  />
-                </FormControl>
-                <FormDescription>
-                  {
+      formElements.push(
+        <FormField
+          key={`field-${page.pageName}-${groupName}-${fieldName}`}
+          control={control}
+          name={`${page.pageName}.${groupName}.${fieldName}`}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{label}</FormLabel>
+              <FormControl>
+                <Input
+                  type={
                     formData
                       .flatMap((page) => page.formGroups)
                       .flatMap((group) =>
@@ -155,15 +200,29 @@ function createFormData({ control, form }: { control: any; form: any }) {
                           (item) => item.fieldName === fieldName
                         )
                       )
-                      .map((item) => item.description)[0]
+                      .map((item) => item.fieldType)[0]
                   }
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        );
-      });
+                  placeholder={label}
+                  {...field}
+                />
+              </FormControl>
+              <FormDescription>
+                {
+                  formData
+                    .flatMap((page) => page.formGroups)
+                    .flatMap((group) =>
+                      group.formItems.filter(
+                        (item) => item.fieldName === fieldName
+                      )
+                    )
+                    .map((item) => item.description)[0]
+                }
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      );
     });
   });
 
@@ -184,21 +243,46 @@ export function ProfileForm() {
     }, {} as { [key: string]: string }),
   });
 
+  const [currentPage, setCurrentPage] = useState(0);
+  const [formElements, setFormElements] = useState<ReactElement[]>([]);
+
+  useEffect(() => {
+    setFormElements(
+      createFormData({ control: form.control, form, currentPage })
+    );
+  }, [form, currentPage]);
+
   function onSubmit(data: z.infer<typeof FormSchema>) {
     console.log(JSON.stringify(data, null, 2));
   }
 
-  const [formElements, setFormElements] = useState<ReactElement[]>([]);
+  function handleNextPage() {
+    setCurrentPage((prevPage) => prevPage + 1);
+  }
 
-  useEffect(() => {
-    setFormElements(createFormData({ control: form.control, form }));
-  }, [form]);
+  function handlePrevPage() {
+    setCurrentPage((prevPage) => prevPage - 1);
+  }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        {`${currentPage + 1}/${formData.length}`}
         {formElements}
-        <Button type="submit">Submit</Button>
+        <div className="flex justify-between">
+          {currentPage > 0 && (
+            <Button type="button" onClick={handlePrevPage}>
+              Previous
+            </Button>
+          )}
+          {currentPage < formData.length - 1 ? (
+            <Button type="button" onClick={handleNextPage}>
+              Next
+            </Button>
+          ) : (
+            <Button type="submit">Submit</Button>
+          )}
+        </div>
       </form>
     </Form>
   );
@@ -207,9 +291,11 @@ export function ProfileForm() {
 export default function Page() {
   return (
     <div className="bg-backgroundPrimary flex flex-col overflow-x-hidden border-b border-borderPrimary">
-      <div className="relative bg-backgroundEmPrimary bg-center bg-no-repeat bg-cover grid grid-cols-4 md:grid-cols-8 lg:grid-cols-12 gap-y-6 md:gap-y-12 px-6 py-6 md:py-[84px] !pb-0 min-h-[50vh] justify-center">
+      <div className="relative bg-backgroundEmPrimary bg-center bg-no-repeat bg-cover grid grid-cols-4 md:grid-cols-8 lg:grid-cols-12 gap-y-6 md:gap-y-12 px-6 py-6 md:py-[84px] min-h-[50vh] justify-center">
         <div className=" text-center col-start-1 md:col-start-2 col-end-5 md:col-end-8 lg:col-end-12 flex flex-col gap-8 items-center justify-center">
-          <ProfileForm />
+          <div className="bg-slate-100 p-16">
+            <ProfileForm />
+          </div>
         </div>
       </div>
     </div>
