@@ -4,7 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
+import { Button as OldButton } from "@/components/ui/button";
+import Button from "@/components/Button";
 import {
   Form,
   FormControl,
@@ -16,6 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ReactElement, useEffect, useState } from "react";
+import { BodySmall, Heading2, Heading3 } from "@/components/type-styles";
 
 enum FormFieldType {
   text = "text",
@@ -23,9 +25,9 @@ enum FormFieldType {
 }
 
 interface FormData {
-  fieldName: string;
+  id: string;
   fieldType: FormFieldType;
-  label?: string;
+  label: string;
   placeholder?: string;
   description?: string;
   required?: boolean;
@@ -33,24 +35,28 @@ interface FormData {
 }
 
 interface FormGroup {
-  groupName: string;
-  formItems: FormData[];
+  id: string;
+  name?: string;
+  formItems: { [id: string]: FormData };
 }
 
 interface FormPage {
-  pageName: string;
-  formGroups: FormGroup[];
+  id: string;
+  name: string;
+  formGroups: { [id: string]: FormGroup };
 }
 
-const formData: FormPage[] = [
-  {
-    pageName: "Page 1",
-    formGroups: [
-      {
-        groupName: "Interests and Expertise",
-        formItems: [
-          {
-            fieldName: "areasOfInterest",
+const formData: { [key: string]: FormPage } = {
+  page1: {
+    id: "page1",
+    name: "Getting to Know",
+    formGroups: {
+      "page1-group1": {
+        id: "page1-group1",
+        name: "Interests and Expertise",
+        formItems: {
+          "page1-group1-item1": {
+            id: "page1-group1-item1",
             fieldType: FormFieldType.text,
             label: "Areas of Interest",
             description:
@@ -61,8 +67,8 @@ const formData: FormPage[] = [
               message: "Please enter at least one area of interest.",
             }),
           },
-          {
-            fieldName: "programmingLanguages",
+          "page1-group1-item2": {
+            id: "page1-group1-item2",
             fieldType: FormFieldType.text,
             label: "Programming Languages",
             placeholder: "E.g., Python, Java, JavaScript",
@@ -70,18 +76,45 @@ const formData: FormPage[] = [
             required: false,
             validationRules: z.string().optional(),
           },
-        ],
+        },
       },
-    ],
+      "page1-group2": {
+        id: "page1-group2",
+        name: "Interests and Expereeetise",
+        formItems: {
+          "page1-group2-item1": {
+            id: "page1-group2-item1",
+            fieldType: FormFieldType.text,
+            label: "Areas of Interest",
+            placeholder: "E.g., Web Development, Data Science",
+            required: true,
+            validationRules: z.string().min(2, {
+              message: "Please enter at least one area of interest.",
+            }),
+          },
+          "page1-group2-item2": {
+            id: "page1-group2-item2",
+            fieldType: FormFieldType.text,
+            label: "Programming Languages",
+            placeholder: "E.g., Python, Java, JavaScript",
+            description: "List any programming languages you're familiar with.",
+            required: false,
+            validationRules: z.string().optional(),
+          },
+        },
+      },
+    },
   },
-  {
-    pageName: "Page 2",
-    formGroups: [
-      {
-        groupName: "Event Expectations",
-        formItems: [
-          {
-            fieldName: "eventExpectations",
+  page2: {
+    id: "page2",
+    name: "Page 2",
+    formGroups: {
+      "page2-group1": {
+        id: "page2-group1",
+        name: "Event Expectations",
+        formItems: {
+          "page2-group1-item1": {
+            id: "page2-group1-item1",
             fieldType: FormFieldType.text,
             label: "Event Expectations",
             description:
@@ -93,8 +126,8 @@ const formData: FormPage[] = [
               .string()
               .min(10, { message: "Please provide a detailed response." }),
           },
-          {
-            fieldName: "preferredSessions",
+          "page2-group1-item2": {
+            id: "page2-group1-item2",
             fieldType: FormFieldType.text,
             label: "Preferred Sessions",
             placeholder: "E.g., Tech Talk, Hackathon, Coding Workshop",
@@ -103,48 +136,50 @@ const formData: FormPage[] = [
             required: false,
             validationRules: z.string().optional(),
           },
-        ],
+        },
       },
-    ],
+    },
   },
-  {
-    pageName: "Page 3",
-    formGroups: [
-      {
-        groupName: "Additional Information",
-        formItems: [
-          {
-            fieldName: "otherComments",
+  page3: {
+    id: "page3",
+    name: "Page 3",
+    formGroups: {
+      "page3-group1": {
+        id: "page3-group1",
+        name: "Additional Information",
+        formItems: {
+          "page3-group1-item1": {
+            id: "page3-group1-item1",
             fieldType: FormFieldType.text,
             label: "Other Comments or Suggestions",
             description:
               "If you have any other comments, suggestions, or specific requirements for the event, please mention them here.",
             placeholder: "E.g., Accessibility concerns, preferred time slots",
-            required: false,
+            required: true,
             validationRules: z.string().optional(),
           },
-        ],
+        },
       },
-    ],
+    },
   },
-];
+};
 
 // Generate the Zod schema from the formData
 const FormSchema = z.object(
-  formData.reduce((acc, page) => {
+  Object.values(formData).reduce((acc, page) => {
     const pageSchema = z.object(
-      page.formGroups.reduce((groupAcc, group) => {
+      Object.values(page.formGroups).reduce((groupAcc, group) => {
         const groupSchema = z.object(
-          group.formItems.reduce((fieldAcc, formItem) => {
-            fieldAcc[formItem.fieldName] = formItem.validationRules;
+          Object.values(group.formItems).reduce((fieldAcc, formItem) => {
+            fieldAcc[formItem.id] = formItem.validationRules;
             return fieldAcc;
           }, {} as { [key: string]: z.ZodTypeAny })
         );
-        groupAcc[group.groupName] = groupSchema;
+        groupAcc[group.id] = groupSchema;
         return groupAcc;
       }, {} as { [key: string]: z.ZodTypeAny })
     );
-    acc[page.pageName] = pageSchema;
+    acc[page.id] = pageSchema;
     return acc;
   }, {} as { [key: string]: z.ZodTypeAny })
 );
@@ -160,82 +195,89 @@ function createFormData({
 }) {
   const formElements: ReactElement[] = [];
 
-  const page = formData[currentPage];
-  const pageZod = FormSchema.shape[page.pageName] as z.ZodObject<any>;
+  const pageChildren: ReactElement[] = [];
 
-  formElements.push(
-    <FormItem key={`page-${page.pageName}`}>{`Page ${page.pageName}`}</FormItem>
-  );
+  const page = formData[`page${currentPage + 1}`];
+  const pageZod = FormSchema.shape[page.id] as z.ZodObject<any>;
 
-  Object.entries(pageZod.shape).forEach(([groupName, groupSchema]) => {
+  const formDataPage = page;
+
+  Object.entries(pageZod.shape).forEach(([id, groupSchema]) => {
+    const groupChildren: ReactElement[] = [];
     const groupZod = groupSchema as z.ZodObject<any>;
-    formElements.push(
-      <FormItem
-        key={`group-${page.pageName}-${groupName}`}
-      >{`Group ${groupName}`}</FormItem>
-    );
+    const formDataGroup = formDataPage.formGroups[id];
+    const groupName = formDataGroup.name;
 
-    Object.entries(groupZod.shape).forEach(([fieldName, fieldSchema]) => {
+    Object.entries(groupZod.shape).forEach(([id, fieldSchema]) => {
       const fieldZod = fieldSchema as z.ZodTypeAny;
-      const label = fieldName;
-      const fieldValue = form.getValues(
-        `${page.pageName}.${groupName}.${fieldName}`
-      );
+      const formDataItem = formDataGroup.formItems[id];
+      const label = formDataItem.label;
 
-      formElements.push(
+      groupChildren.push(
         <FormField
-          key={`field-${page.pageName}-${groupName}-${fieldName}`}
+          key={formDataItem.id}
           control={control}
-          name={`${page.pageName}.${groupName}.${fieldName}`}
+          name={formDataItem.id}
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>{label}</FormLabel>
+            <FormItem
+              className={`flex flex-col ${
+                formDataItem.description !== undefined ? "gap-2" : ""
+              }`}
+            >
+              <div>
+                <FormLabel className="grow-0">
+                  {label!}{" "}
+                  <span className="text-red-500">
+                    {formDataItem.required! ? "*" : ""}
+                  </span>
+                </FormLabel>
+                <FormDescription>{formDataItem.description}</FormDescription>
+              </div>
+
               <FormControl>
                 <Input
-                  type={
-                    formData
-                      .flatMap((page) => page.formGroups)
-                      .flatMap((group) =>
-                        group.formItems.filter(
-                          (item) => item.fieldName === fieldName
-                        )
-                      )
-                      .map((item) => item.fieldType)[0]
-                  }
-                  placeholder={label}
+                  type={formDataItem.fieldType}
+                  placeholder={formDataItem.placeholder}
                   {...field}
                 />
               </FormControl>
-              <FormDescription>
-                {
-                  formData
-                    .flatMap((page) => page.formGroups)
-                    .flatMap((group) =>
-                      group.formItems.filter(
-                        (item) => item.fieldName === fieldName
-                      )
-                    )
-                    .map((item) => item.description)[0]
-                }
-              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
       );
     });
+
+    pageChildren.push(
+      <div className="flex flex-col gap-12 align-start text-left">
+        {formDataGroup.name !== undefined && <Heading3>{groupName}</Heading3>}
+        <div className="flex flex-col gap-8">{groupChildren}</div>
+      </div>
+    );
   });
+
+  formElements.push(
+    <div className="flex flex-col gap-24 pb-16 align-start text-center">
+      <div className="flex flex-col gap-2">
+        <BodySmall className="text-onBackgroundTertiary">
+          {`${currentPage + 1}/${Object.values(formData).length}`}
+        </BodySmall>
+        <Heading2>{page.name}</Heading2>
+      </div>
+      <div className="flex flex-col gap-20">{pageChildren}</div>
+    </div>
+  );
 
   return formElements;
 }
 
-export function ProfileForm() {
+function ProfileForm() {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
-    defaultValues: formData.reduce((acc, page) => {
-      page.formGroups.forEach((group) => {
-        group.formItems.forEach((formItem) => {
-          const fieldName = `${page.pageName}.${group.groupName}.${formItem.fieldName}`;
+    defaultValues: Object.values(formData).reduce((acc, page) => {
+      Object.values(page.formGroups).forEach((group) => {
+        Object.values(group.formItems).forEach((formItem) => {
+          const fieldName = formItem.id;
           acc[fieldName] = "";
         });
       });
@@ -267,20 +309,26 @@ export function ProfileForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        {`${currentPage + 1}/${formData.length}`}
         {formElements}
-        <div className="flex justify-between">
+        <div className="flex justify-between gap-4">
           {currentPage > 0 && (
-            <Button type="button" onClick={handlePrevPage}>
+            <Button
+              className="w-full"
+              type="submit"
+              variant="secondary"
+              onClick={handlePrevPage}
+            >
               Previous
             </Button>
           )}
-          {currentPage < formData.length - 1 ? (
-            <Button type="button" onClick={handleNextPage}>
+          {currentPage < Object.values(formData).length - 1 ? (
+            <Button className="w-full" onClick={handleNextPage}>
               Next
             </Button>
           ) : (
-            <Button type="submit">Submit</Button>
+            <Button className="w-full" type="submit">
+              Submit
+            </Button>
           )}
         </div>
       </form>
@@ -291,9 +339,9 @@ export function ProfileForm() {
 export default function Page() {
   return (
     <div className="bg-backgroundPrimary flex flex-col overflow-x-hidden border-b border-borderPrimary">
-      <div className="relative bg-backgroundEmPrimary bg-center bg-no-repeat bg-cover grid grid-cols-4 md:grid-cols-8 lg:grid-cols-12 gap-y-6 md:gap-y-12 px-6 py-6 md:py-[84px] min-h-[50vh] justify-center">
+      <div className="relative bg-backgroundSecondary bg-center bg-no-repeat bg-cover grid grid-cols-4 md:grid-cols-8 lg:grid-cols-12 gap-y-6 md:gap-y-12 px-6 py-6 md:py-[84px] min-h-[50vh] justify-center">
         <div className=" text-center col-start-1 md:col-start-2 col-end-5 md:col-end-8 lg:col-end-12 flex flex-col gap-8 items-center justify-center">
-          <div className="bg-slate-100 p-16">
+          <div className="bg-surfacePrimary px-8 py-12 sm:p-16 max-w-[600px] border borderPrimary rounded-lg min-h-[600px]">
             <ProfileForm />
           </div>
         </div>
