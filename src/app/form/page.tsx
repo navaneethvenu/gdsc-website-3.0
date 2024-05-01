@@ -31,6 +31,7 @@ interface FormData {
   placeholder?: string;
   description?: string;
   required?: boolean;
+  defaultValue?: string;
   validationRules: z.ZodTypeAny;
 }
 
@@ -62,6 +63,7 @@ const formData: { [key: string]: FormPage } = {
             description:
               "Enter the fields or areas you're interested in (e.g., Web Development, Machine Learning, Cybersecurity, etc.).",
             placeholder: "E.g., Web Development, Data Science",
+            defaultValue: "This is a test",
             required: true,
             validationRules: z.string().min(2, {
               message: "Please enter at least one area of interest.",
@@ -249,7 +251,10 @@ function createFormData({
     });
 
     pageChildren.push(
-      <div className="flex flex-col gap-12 align-start text-left">
+      <div
+        className="flex flex-col gap-12 align-start text-left"
+        key={formDataGroup.id}
+      >
         {formDataGroup.name !== undefined && <Heading3>{groupName}</Heading3>}
         <div className="flex flex-col gap-8">{groupChildren}</div>
       </div>
@@ -257,7 +262,10 @@ function createFormData({
   });
 
   formElements.push(
-    <div className="flex flex-col gap-24 pb-16 align-start text-center">
+    <div
+      className="flex flex-col gap-24 pb-16 align-start text-center"
+      key={formDataPage.id}
+    >
       <div className="flex flex-col gap-2">
         <BodySmall className="text-onBackgroundTertiary">
           {`${currentPage + 1}/${Object.values(formData).length}`}
@@ -272,17 +280,22 @@ function createFormData({
 }
 
 function ProfileForm() {
+  const defaultValues = Object.values(formData).reduce((acc, page) => {
+    Object.values(page.formGroups).forEach((group) => {
+      Object.values(group.formItems).forEach((formItem) => {
+        const fieldName = formItem.id;
+        acc[fieldName] =
+          formItem.defaultValue == undefined ? "" : formItem.defaultValue;
+      });
+    });
+    return acc;
+  }, {} as { [key: string]: string });
+
+  console.log(defaultValues);
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
-    defaultValues: Object.values(formData).reduce((acc, page) => {
-      Object.values(page.formGroups).forEach((group) => {
-        Object.values(group.formItems).forEach((formItem) => {
-          const fieldName = formItem.id;
-          acc[fieldName] = "";
-        });
-      });
-      return acc;
-    }, {} as { [key: string]: string }),
+    defaultValues: defaultValues,
   });
 
   const [currentPage, setCurrentPage] = useState(0);
@@ -306,6 +319,7 @@ function ProfileForm() {
     setCurrentPage((prevPage) => prevPage - 1);
   }
 
+  console.log(FormSchema);
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
