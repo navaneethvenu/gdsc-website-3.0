@@ -4,8 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Control, useForm } from "react-hook-form";
 import { ZodSchema, z } from "zod";
 
-import { Button as OldButton } from "@/components/ui/button";
 import Button from "@/components/Button";
+
 import {
   Form,
   FormControl,
@@ -24,10 +24,14 @@ enum FormFieldType {
   email = "email",
 }
 
-interface FormData {
+interface FormPageMap {
+  [id: string]: FormPage;
+}
+
+interface FormItem {
   id: string;
+  name: string;
   fieldType: FormFieldType;
-  label: string;
   placeholder?: string;
   description?: string;
   required?: boolean;
@@ -38,7 +42,7 @@ interface FormData {
 interface FormGroup {
   id: string;
   name?: string;
-  formItems: { [id: string]: FormData };
+  formItems: { [id: string]: FormItem };
 }
 
 interface FormPage {
@@ -47,7 +51,7 @@ interface FormPage {
   formGroups: { [id: string]: FormGroup };
 }
 
-const formData: { [key: string]: FormPage } = {
+const formData: FormPageMap = {
   page1: {
     id: "page1",
     name: "Getting to Know",
@@ -59,7 +63,7 @@ const formData: { [key: string]: FormPage } = {
           "page1-group1-item1": {
             id: "page1-group1-item1",
             fieldType: FormFieldType.text,
-            label: "Areas of Interest",
+            name: "Areas of Interest",
             description:
               "Enter the fields or areas you're interested in (e.g., Web Development, Machine Learning, Cybersecurity, etc.).",
             placeholder: "E.g., Web Development, Data Science",
@@ -72,7 +76,7 @@ const formData: { [key: string]: FormPage } = {
           "page1-group1-item2": {
             id: "page1-group1-item2",
             fieldType: FormFieldType.text,
-            label: "Programming Languages",
+            name: "Programming Languages",
             placeholder: "E.g., Python, Java, JavaScript",
             description: "List any programming languages you're familiar with.",
             required: false,
@@ -87,7 +91,7 @@ const formData: { [key: string]: FormPage } = {
           "page1-group2-item1": {
             id: "page1-group2-item1",
             fieldType: FormFieldType.text,
-            label: "Areas of Interest",
+            name: "Areas of Interest",
             placeholder: "E.g., Web Development, Data Science",
             required: true,
             validationRules: z.string().min(2, {
@@ -97,7 +101,7 @@ const formData: { [key: string]: FormPage } = {
           "page1-group2-item2": {
             id: "page1-group2-item2",
             fieldType: FormFieldType.text,
-            label: "Programming Languages",
+            name: "Programming Languages",
             placeholder: "E.g., Python, Java, JavaScript",
             description: "List any programming languages you're familiar with.",
             required: false,
@@ -118,7 +122,7 @@ const formData: { [key: string]: FormPage } = {
           "page2-group1-item1": {
             id: "page2-group1-item1",
             fieldType: FormFieldType.text,
-            label: "Event Expectations",
+            name: "Event Expectations",
             description:
               "What are your expectations from the 'Le Debut' freshers event? What would you like to learn or explore?",
             placeholder:
@@ -131,7 +135,7 @@ const formData: { [key: string]: FormPage } = {
           "page2-group1-item2": {
             id: "page2-group1-item2",
             fieldType: FormFieldType.text,
-            label: "Preferred Sessions",
+            name: "Preferred Sessions",
             placeholder: "E.g., Tech Talk, Hackathon, Coding Workshop",
             description:
               "List any specific types of sessions or activities you'd be interested in attending during the event.",
@@ -153,7 +157,7 @@ const formData: { [key: string]: FormPage } = {
           "page3-group1-item1": {
             id: "page3-group1-item1",
             fieldType: FormFieldType.text,
-            label: "Other Comments or Suggestions",
+            name: "Other Comments or Suggestions",
             description:
               "If you have any other comments, suggestions, or specific requirements for the event, please mention them here.",
             placeholder: "E.g., Accessibility concerns, preferred time slots",
@@ -166,23 +170,7 @@ const formData: { [key: string]: FormPage } = {
   },
 };
 
-// Generate the Zod schema from the formData
-const FormSchema = z.object(Object.values(formData).reduce(
-  (acc: { [id: string]: ZodSchema }, page) => {
-    Object.values(page.formGroups).forEach((fg) => {
-      Object.values(fg.formItems).forEach((fi) => {
-        acc[fi.id] = fi.validationRules;
-      });
-    });
-    return acc;
-  },
-  {}
-));
-
-function createFormData({
-  control,
-  currentPage,
-}: {
+interface createFormElementsProps {
   control: Control<
     {
       [x: string]: any;
@@ -190,43 +178,48 @@ function createFormData({
     any
   >;
   currentPage: number;
-}) {
+  data: FormPageMap;
+}
+
+function createFormElements({
+  control,
+  currentPage,
+  data,
+}: createFormElementsProps) {
   const formElements: ReactElement[] = [];
-  const pageChildren: ReactElement[] = [];
+  const pageElements: ReactElement[] = [];
 
-  const page = formData[`page${currentPage + 1}`];
+  const page = data[`page${currentPage + 1}`];
 
-  Object.entries(page.formGroups).forEach(([id, fg]) => {
-    const groupChildren: ReactElement[] = [];
-    const groupName = fg.name;
+  Object.entries(page.formGroups).forEach(([id, group]) => {
+    const groupElements: ReactElement[] = [];
 
-    Object.entries(fg.formItems).forEach(([id, fi]) => {
-      const label = fi.label;      
-      groupChildren.push(
+    Object.entries(group.formItems).forEach(([id, item]) => {
+      groupElements.push(
         <FormField
-          key={fi.id}
+          key={item.id}
           control={control}
-          name={fi.id}
+          name={item.id}
           render={({ field }) => (
             <FormItem
               className={`flex flex-col ${
-                fi.description !== undefined ? "gap-2" : ""
+                item.description !== undefined ? "gap-2" : ""
               }`}
             >
               <div>
                 <FormLabel className="grow-0">
-                  {label!}{" "}
+                  {item.name}{" "}
                   <span className="text-red-500">
-                    {fi.required! ? "*" : ""}
+                    {item.required! ? "*" : ""}
                   </span>
                 </FormLabel>
-                <FormDescription>{fi.description}</FormDescription>
+                <FormDescription>{item.description}</FormDescription>
               </div>
 
               <FormControl>
                 <Input
-                  type={fi.fieldType}
-                  placeholder={fi.placeholder}
+                  type={item.fieldType}
+                  placeholder={item.placeholder}
                   {...field}
                 />
               </FormControl>
@@ -237,13 +230,13 @@ function createFormData({
       );
     });
 
-    pageChildren.push(
+    pageElements.push(
       <div
         className="flex flex-col gap-12 align-start text-left"
-        key={fg.id}
+        key={group.id}
       >
-        {fg.name !== undefined && <Heading3>{groupName}</Heading3>}
-        <div className="flex flex-col gap-8">{groupChildren}</div>
+        {group.name !== undefined && <Heading3>{group.name}</Heading3>}
+        <div className="flex flex-col gap-8">{groupElements}</div>
       </div>
     );
   });
@@ -255,19 +248,37 @@ function createFormData({
     >
       <div className="flex flex-col gap-2">
         <BodySmall className="text-onBackgroundTertiary">
-          {`${currentPage + 1}/${Object.values(formData).length}`}
+          {`${currentPage + 1}/${Object.values(data).length}`}
         </BodySmall>
         <Heading2>{page.name}</Heading2>
       </div>
-      <div className="flex flex-col gap-20">{pageChildren}</div>
+      <div className="flex flex-col gap-20">{pageElements}</div>
     </div>
   );
 
   return formElements;
 }
 
-function ProfileForm() {
-  const defaultValues = Object.values(formData).reduce((acc, page) => {
+interface GeneratedFormProps {
+  data: FormPageMap;
+}
+
+function GeneratedForm({ data }: GeneratedFormProps) {
+  const [currentPage, setCurrentPage] = useState(0);
+  const [formElements, setFormElements] = useState<ReactElement[]>([]);
+
+  const FormSchema = z.object(
+    Object.values(data).reduce((acc: { [id: string]: ZodSchema }, page) => {
+      Object.values(page.formGroups).forEach((fg) => {
+        Object.values(fg.formItems).forEach((fi) => {
+          acc[fi.id] = fi.validationRules;
+        });
+      });
+      return acc;
+    }, {})
+  );
+
+  const defaultValues = Object.values(data).reduce((acc, page) => {
     Object.values(page.formGroups).forEach((group) => {
       Object.values(group.formItems).forEach((formItem) => {
         const fieldName = formItem.id;
@@ -278,20 +289,16 @@ function ProfileForm() {
     return acc;
   }, {} as { [key: string]: string });
 
-  console.log(defaultValues);
-
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: defaultValues,
   });
 
-  const [currentPage, setCurrentPage] = useState(0);
-  const [formElements, setFormElements] = useState<ReactElement[]>([]);
   useEffect(() => {
     setFormElements(
-      createFormData({ control: form.control, currentPage })
+      createFormElements({ control: form.control, currentPage, data: data })
     );
-  }, [form, currentPage]);
+  }, [form, currentPage, data]);
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
     console.log(JSON.stringify(data, null, 2));
@@ -300,9 +307,9 @@ function ProfileForm() {
   async function handleNextPage(e: React.SyntheticEvent<HTMLButtonElement>) {
     e.preventDefault();
     const currentPagefields = Object.values(
-      formData[`page${currentPage + 1}`].formGroups
+      data[`page${currentPage + 1}`].formGroups
     ).flatMap((fg) => Object.values(fg.formItems).flatMap((fi) => fi.id));
-    const output = await form.trigger(currentPagefields, {shouldFocus: true});   // Validate fields in the current page 
+    const output = await form.trigger(currentPagefields, { shouldFocus: true }); // Validate fields in the current page
     if (!output) return;
     setCurrentPage((prevPage) => prevPage + 1);
   }
@@ -312,7 +319,6 @@ function ProfileForm() {
     setCurrentPage((prevPage) => prevPage - 1);
   }
 
-  console.log(FormSchema);
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -321,15 +327,14 @@ function ProfileForm() {
           {currentPage > 0 && (
             <Button
               className="w-full"
-              type="button"
               variant="secondary"
               onClick={handlePrevPage}
             >
               Previous
             </Button>
           )}
-          {currentPage < Object.values(formData).length - 1 ? (
-            <Button type="button" className="w-full" onClick={handleNextPage}>
+          {currentPage < Object.values(data).length - 1 ? (
+            <Button className="w-full" onClick={handleNextPage}>
               Next
             </Button>
           ) : (
@@ -349,7 +354,7 @@ export default function Page() {
       <div className="relative bg-backgroundSecondary bg-center bg-no-repeat bg-cover grid grid-cols-4 md:grid-cols-8 lg:grid-cols-12 gap-y-6 md:gap-y-12 px-6 py-6 md:py-[84px] min-h-[50vh] justify-center">
         <div className=" text-center col-start-1 md:col-start-2 col-end-5 md:col-end-8 lg:col-end-12 flex flex-col gap-8 items-center justify-center">
           <div className="bg-surfacePrimary px-8 py-12 sm:p-16 max-w-[600px] border borderPrimary rounded-lg min-h-[600px]">
-            <ProfileForm />
+            <GeneratedForm data={formData} />
           </div>
         </div>
       </div>
