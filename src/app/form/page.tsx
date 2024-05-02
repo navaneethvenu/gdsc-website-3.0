@@ -1,8 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { Control, useForm } from "react-hook-form";
+import { ZodSchema, z } from "zod";
 
 import { Button as OldButton } from "@/components/ui/button";
 import Button from "@/components/Button";
@@ -32,7 +32,7 @@ interface FormData {
   description?: string;
   required?: boolean;
   defaultValue?: string;
-  validationRules: z.ZodTypeAny;
+  validationRules: ZodSchema;
 }
 
 interface FormGroup {
@@ -167,79 +167,66 @@ const formData: { [key: string]: FormPage } = {
 };
 
 // Generate the Zod schema from the formData
-const FormSchema = z.object(
-  Object.values(formData).reduce((acc, page) => {
-    const pageSchema = z.object(
-      Object.values(page.formGroups).reduce((groupAcc, group) => {
-        const groupSchema = z.object(
-          Object.values(group.formItems).reduce((fieldAcc, formItem) => {
-            fieldAcc[formItem.id] = formItem.validationRules;
-            return fieldAcc;
-          }, {} as { [key: string]: z.ZodTypeAny })
-        );
-        groupAcc[group.id] = groupSchema;
-        return groupAcc;
-      }, {} as { [key: string]: z.ZodTypeAny })
-    );
-    acc[page.id] = pageSchema;
+const FormSchema = z.object(Object.values(formData).reduce(
+  (acc: { [id: string]: ZodSchema }, page) => {
+    Object.values(page.formGroups).forEach((fg) => {
+      Object.values(fg.formItems).forEach((fi) => {
+        acc[fi.id] = fi.validationRules;
+      });
+    });
     return acc;
-  }, {} as { [key: string]: z.ZodTypeAny })
-);
+  },
+  {}
+));
 
 function createFormData({
   control,
-  form,
   currentPage,
 }: {
-  control: any;
-  form: any;
+  control: Control<
+    {
+      [x: string]: any;
+    },
+    any
+  >;
   currentPage: number;
 }) {
   const formElements: ReactElement[] = [];
-
   const pageChildren: ReactElement[] = [];
 
   const page = formData[`page${currentPage + 1}`];
-  const pageZod = FormSchema.shape[page.id] as z.ZodObject<any>;
 
-  const formDataPage = page;
-
-  Object.entries(pageZod.shape).forEach(([id, groupSchema]) => {
+  Object.entries(page.formGroups).forEach(([id, fg]) => {
     const groupChildren: ReactElement[] = [];
-    const groupZod = groupSchema as z.ZodObject<any>;
-    const formDataGroup = formDataPage.formGroups[id];
-    const groupName = formDataGroup.name;
+    const groupName = fg.name;
 
-    Object.entries(groupZod.shape).forEach(([id, fieldSchema]) => {
-      const fieldZod = fieldSchema as z.ZodTypeAny;
-      const formDataItem = formDataGroup.formItems[id];
-      const label = formDataItem.label;
-
+    Object.entries(fg.formItems).forEach(([id, fi]) => {
+      const label = fi.label;      
       groupChildren.push(
         <FormField
-          key={formDataItem.id}
+          key={fi.id}
           control={control}
-          name={formDataItem.id}
+          name={fi.id}
           render={({ field }) => (
             <FormItem
               className={`flex flex-col ${
-                formDataItem.description !== undefined ? "gap-2" : ""
+                fi.description !== undefined ? "gap-2" : ""
               }`}
             >
               <div>
                 <FormLabel className="grow-0">
                   {label!}{" "}
                   <span className="text-red-500">
-                    {formDataItem.required! ? "*" : ""}
+                    {fi.required! ? "*" : ""}
                   </span>
                 </FormLabel>
-                <FormDescription>{formDataItem.description}</FormDescription>
+                <FormDescription>{fi.description}</FormDescription>
               </div>
 
               <FormControl>
                 <Input
-                  type={formDataItem.fieldType}
-                  placeholder={formDataItem.placeholder}
+                  type={fi.fieldType}
+                  placeholder={fi.placeholder}
                   {...field}
                 />
               </FormControl>
@@ -253,9 +240,9 @@ function createFormData({
     pageChildren.push(
       <div
         className="flex flex-col gap-12 align-start text-left"
-        key={formDataGroup.id}
+        key={fg.id}
       >
-        {formDataGroup.name !== undefined && <Heading3>{groupName}</Heading3>}
+        {fg.name !== undefined && <Heading3>{groupName}</Heading3>}
         <div className="flex flex-col gap-8">{groupChildren}</div>
       </div>
     );
@@ -264,7 +251,7 @@ function createFormData({
   formElements.push(
     <div
       className="flex flex-col gap-24 pb-16 align-start text-center"
-      key={formDataPage.id}
+      key={page.id}
     >
       <div className="flex flex-col gap-2">
         <BodySmall className="text-onBackgroundTertiary">
@@ -300,10 +287,9 @@ function ProfileForm() {
 
   const [currentPage, setCurrentPage] = useState(0);
   const [formElements, setFormElements] = useState<ReactElement[]>([]);
-
   useEffect(() => {
     setFormElements(
-      createFormData({ control: form.control, form, currentPage })
+      createFormData({ control: form.control, currentPage })
     );
   }, [form, currentPage]);
 
@@ -311,11 +297,18 @@ function ProfileForm() {
     console.log(JSON.stringify(data, null, 2));
   }
 
-  function handleNextPage() {
+  async function handleNextPage(e: React.SyntheticEvent<HTMLButtonElement>) {
+    e.preventDefault();
+    const currentPagefields = Object.values(
+      formData[`page${currentPage + 1}`].formGroups
+    ).flatMap((fg) => Object.values(fg.formItems).flatMap((fi) => fi.id));
+    const output = await form.trigger(currentPagefields, {shouldFocus: true});   // Validate fields in the current page 
+    if (!output) return;
     setCurrentPage((prevPage) => prevPage + 1);
   }
 
-  function handlePrevPage() {
+  async function handlePrevPage(e: React.SyntheticEvent<HTMLButtonElement>) {
+    e.preventDefault();
     setCurrentPage((prevPage) => prevPage - 1);
   }
 
@@ -328,7 +321,7 @@ function ProfileForm() {
           {currentPage > 0 && (
             <Button
               className="w-full"
-              type="submit"
+              type="button"
               variant="secondary"
               onClick={handlePrevPage}
             >
@@ -336,7 +329,7 @@ function ProfileForm() {
             </Button>
           )}
           {currentPage < Object.values(formData).length - 1 ? (
-            <Button className="w-full" onClick={handleNextPage}>
+            <Button type="button" className="w-full" onClick={handleNextPage}>
               Next
             </Button>
           ) : (
