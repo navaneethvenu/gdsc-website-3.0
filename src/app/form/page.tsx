@@ -18,10 +18,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { ReactElement, useEffect, useState } from "react";
 import { BodySmall, Heading2, Heading3 } from "@/components/type-styles";
+import { Textarea } from "@/components/ui/textarea";
 
 enum FormFieldType {
   text = "text",
   email = "email",
+  password = "password",
+  number = "number",
+  textarea = "textarea",
 }
 
 interface FormPageMap {
@@ -121,7 +125,7 @@ const formData: FormPageMap = {
         formItems: {
           "page2-group1-item1": {
             id: "page2-group1-item1",
-            fieldType: FormFieldType.text,
+            fieldType: FormFieldType.textarea,
             name: "Event Expectations",
             description:
               "What are your expectations from the 'Le Debut' freshers event? What would you like to learn or explore?",
@@ -209,19 +213,23 @@ function createFormElements({
               <div>
                 <FormLabel className="grow-0">
                   {item.name}{" "}
-                  <span className="text-red-500">
-                    {item.required! ? "*" : ""}
+                  <span className="text-onBackgroundTertiary">
+                    {item.required! ? "" : " (optional)"}
                   </span>
                 </FormLabel>
                 <FormDescription>{item.description}</FormDescription>
               </div>
 
               <FormControl>
-                <Input
-                  type={item.fieldType}
-                  placeholder={item.placeholder}
-                  {...field}
-                />
+                {item.fieldType == FormFieldType.textarea ? (
+                  <Textarea placeholder={item.placeholder} {...field} />
+                ) : (
+                  <Input
+                    type={item.fieldType}
+                    placeholder={item.placeholder}
+                    {...field}
+                  />
+                )}
               </FormControl>
               <FormMessage />
             </FormItem>
