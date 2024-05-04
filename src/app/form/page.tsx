@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { ReactElement, useEffect, useState } from "react";
 import { BodySmall, Heading2, Heading3 } from "@/components/type-styles";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 
 enum FormFieldType {
   text = "text",
@@ -26,6 +27,7 @@ enum FormFieldType {
   password = "password",
   number = "number",
   textarea = "textarea",
+  checkbox = "checkbox",
 }
 
 interface FormPageMap {
@@ -39,7 +41,12 @@ interface FormItem {
   placeholder?: string;
   description?: string;
   required?: boolean;
-  defaultValue?: string;
+  defaultValue?: string | string[];
+  options?: {
+    id: string;
+    label?: any;
+    value: any;
+  }[];
   validationRules: ZodSchema;
 }
 
@@ -94,20 +101,38 @@ const formData: FormPageMap = {
         formItems: {
           "page1-group2-item1": {
             id: "page1-group2-item1",
-            fieldType: FormFieldType.text,
-            name: "Areas of Interest",
+            fieldType: FormFieldType.checkbox,
+            name: "Choose Areas of Interest",
             placeholder: "E.g., Web Development, Data Science",
             required: true,
-            validationRules: z.string().min(2, {
-              message: "Please enter at least one area of interest.",
-            }),
+            options: [
+              {
+                id: "web-dev",
+                value: "Web Development",
+              },
+              {
+                id: "app-adev",
+                value: "App Development",
+              },
+              {
+                id: "data-science",
+                label: "Test",
+                value: "Data Science",
+              },
+            ],
+            defaultValue: ["data-science"],
+            validationRules: z
+              .array(z.string())
+              .refine((value) => value.length > 1, {
+                message: "You have to select at least two items.",
+              }),
           },
           "page1-group2-item2": {
             id: "page1-group2-item2",
             fieldType: FormFieldType.text,
             name: "Programming Languages",
-            placeholder: "E.g., Python, Java, JavaScript",
             description: "List any programming languages you're familiar with.",
+            placeholder: "E.g., Python, Java, JavaScript",
             required: false,
             validationRules: z.string().optional(),
           },
@@ -217,16 +242,63 @@ function createFormElements({
                     {item.required! ? "" : " (optional)"}
                   </span>
                 </FormLabel>
-                <FormDescription>{item.description}</FormDescription>
+                <FormDescription className="text-onBackgroundSecondary">
+                  {item.description}
+                </FormDescription>
               </div>
 
               <FormControl>
                 {item.fieldType == FormFieldType.textarea ? (
-                  <Textarea placeholder={item.placeholder} {...field} />
+                  <Textarea
+                    placeholder={item.placeholder}
+                    className="max-h-64 bg-surfaceSecondary"
+                    {...field}
+                  />
+                ) : item.fieldType == FormFieldType.checkbox ? (
+                  <div className="flex flex-col gap-2">
+                    {item.options!.map((option) => (
+                      <FormField
+                        key={option.id}
+                        control={control}
+                        name={item.id}
+                        render={({ field }) => (
+                          <FormItem
+                            key={option.id}
+                            className="flex flex-row items-start space-x-3 space-y-0"
+                          >
+                            <FormControl>
+                              <Checkbox
+                                className="data-[state=checked]:bg-onBackgroundEmPrimary data-[state=checked]:border-onBackgroundEmPrimary"
+                                checked={field.value?.includes(option.id)}
+                                onCheckedChange={(checked: any) => {
+                                  return checked
+                                    ? field.onChange([
+                                        ...field.value,
+                                        option.id,
+                                      ])
+                                    : field.onChange(
+                                        field.value?.filter(
+                                          (value: string) => value !== option.id
+                                        )
+                                      );
+                                }}
+                              />
+                            </FormControl>
+                            <FormLabel className="font-normal">
+                              {option.label !== undefined
+                                ? option.label
+                                : option.value}
+                            </FormLabel>
+                          </FormItem>
+                        )}
+                      ></FormField>
+                    ))}
+                  </div>
                 ) : (
                   <Input
                     type={item.fieldType}
                     placeholder={item.placeholder}
+                    className="bg-surfaceSecondary border-borderSecondary selection:text-onBackgroundPrimary focus-visible:ring-onBackgroundEmPrimary"
                     {...field}
                   />
                 )}
@@ -290,12 +362,11 @@ function GeneratedForm({ data }: GeneratedFormProps) {
     Object.values(page.formGroups).forEach((group) => {
       Object.values(group.formItems).forEach((formItem) => {
         const fieldName = formItem.id;
-        acc[fieldName] =
-          formItem.defaultValue == undefined ? "" : formItem.defaultValue;
+        acc[fieldName] = formItem.defaultValue || "";
       });
     });
     return acc;
-  }, {} as { [key: string]: string });
+  }, {} as { [key: string]: string | string[] });
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -361,7 +432,7 @@ export default function Page() {
     <div className="bg-backgroundPrimary flex flex-col overflow-x-hidden border-b border-borderPrimary">
       <div className="relative bg-backgroundSecondary bg-center bg-no-repeat bg-cover grid grid-cols-4 md:grid-cols-8 lg:grid-cols-12 gap-y-6 md:gap-y-12 px-6 py-6 md:py-[84px] min-h-[50vh] justify-center">
         <div className=" text-center col-start-1 md:col-start-2 col-end-5 md:col-end-8 lg:col-end-12 flex flex-col gap-8 items-center justify-center">
-          <div className="bg-surfacePrimary px-8 py-12 sm:p-16 max-w-[600px] border borderPrimary rounded-lg min-h-[600px]">
+          <div className="bg-surfacePrimary px-8 py-12 sm:p-16 max-w-[600px] border border-borderPrimary rounded-lg min-h-[600px]">
             <GeneratedForm data={formData} />
           </div>
         </div>
