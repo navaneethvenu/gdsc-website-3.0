@@ -23,13 +23,12 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 enum FormFieldType {
-  text = "text",
-  email = "email",
-  password = "password",
-  number = "number",
-  textarea = "textarea",
-  checkbox = "checkbox",
-  radio = "radio",
+  TEXT = "text",
+  EMAIL = "email",
+  NUMBER = "number",
+  TEXTAREA = "textarea",
+  CHECKBOX = "checkbox",
+  RADIO = "radio",
 }
 
 interface FormItemInput {
@@ -83,7 +82,7 @@ const formDataInput: FormPageInput[] = [
         name: "Interests and Expertise",
         formItems: [
           {
-            fieldType: FormFieldType.text,
+            fieldType: FormFieldType.TEXT,
             name: "Areas of Interest",
             description:
               "Enter the fields or areas you're interested in (e.g., Web Development, Machine Learning, Cybersecurity, etc.).",
@@ -95,12 +94,14 @@ const formDataInput: FormPageInput[] = [
             }),
           },
           {
-            fieldType: FormFieldType.text,
+            fieldType: FormFieldType.EMAIL,
             name: "Programming Languages",
             placeholder: "E.g., Python, Java, JavaScript",
             description: "List any programming languages you're familiar with.",
-            required: false,
-            validationRules: z.string().optional(),
+            required: true,
+            validationRules: z.string().min(1, {
+              message: "Please enter at least one area of interest.",
+            }),
           },
         ],
       },
@@ -108,7 +109,7 @@ const formDataInput: FormPageInput[] = [
         name: "Interests and Expereeetise",
         formItems: [
           {
-            fieldType: FormFieldType.checkbox,
+            fieldType: FormFieldType.CHECKBOX,
             name: "Choose Areas of Interest",
             placeholder: "E.g., Web Development, Data Science",
             required: true,
@@ -135,7 +136,7 @@ const formDataInput: FormPageInput[] = [
               }),
           },
           {
-            fieldType: FormFieldType.text,
+            fieldType: FormFieldType.TEXT,
             name: "Programming Languages",
             description: "List any programming languages you're familiar with.",
             placeholder: "E.g., Python, Java, JavaScript",
@@ -143,7 +144,7 @@ const formDataInput: FormPageInput[] = [
             validationRules: z.string().optional(),
           },
           {
-            fieldType: FormFieldType.radio,
+            fieldType: FormFieldType.RADIO,
             name: "Choose Areas of Interest",
             placeholder: "E.g., Web Development, Data Science",
             required: true,
@@ -177,7 +178,7 @@ const formDataInput: FormPageInput[] = [
         name: "Event Expectations",
         formItems: [
           {
-            fieldType: FormFieldType.textarea,
+            fieldType: FormFieldType.TEXTAREA,
             name: "Event Expectations",
             description:
               "What are your expectations from the 'Le Debut' freshers event? What would you like to learn or explore?",
@@ -189,7 +190,7 @@ const formDataInput: FormPageInput[] = [
               .min(10, { message: "Please provide a detailed response." }),
           },
           {
-            fieldType: FormFieldType.text,
+            fieldType: FormFieldType.TEXT,
             name: "Preferred Sessions",
             placeholder: "E.g., Tech Talk, Hackathon, Coding Workshop",
             description:
@@ -208,7 +209,7 @@ const formDataInput: FormPageInput[] = [
         name: "Additional Information",
         formItems: [
           {
-            fieldType: FormFieldType.text,
+            fieldType: FormFieldType.TEXT,
             name: "Other Comments or Suggestions",
             description:
               "If you have any other comments, suggestions, or specific requirements for the event, please mention them here.",
@@ -302,13 +303,13 @@ function createFormElements({
               </div>
 
               <FormControl>
-                {item.fieldType == FormFieldType.textarea ? (
+                {item.fieldType === FormFieldType.TEXTAREA ? (
                   <Textarea
                     placeholder={item.placeholder}
                     className="max-h-64 bg-surfaceSecondary"
                     {...field}
                   />
-                ) : item.fieldType == FormFieldType.checkbox ? (
+                ) : item.fieldType === FormFieldType.CHECKBOX ? (
                   <div className="flex flex-col gap-2">
                     {item.options!.map((option) => (
                       <FormField
@@ -348,7 +349,7 @@ function createFormElements({
                       ></FormField>
                     ))}
                   </div>
-                ) : item.fieldType === FormFieldType.radio ? (
+                ) : item.fieldType === FormFieldType.RADIO ? (
                   <RadioGroup
                     onValueChange={field.onChange}
                     defaultValue={field.value}
@@ -375,9 +376,10 @@ function createFormElements({
                   </RadioGroup>
                 ) : (
                   <Input
+                    autoComplete="on"
                     type={item.fieldType}
                     placeholder={item.placeholder}
-                    className="bg-surfaceSecondary border-borderSecondary selection:text-onBackgroundPrimary focus-visible:ring-onBackgroundEmPrimary"
+                    className="bg-surfaceSecondary border-borderSecondary focus-visible:ring-onBackgroundEmPrimary"
                     {...field}
                   />
                 )}
