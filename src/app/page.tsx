@@ -1,15 +1,23 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Body, BodyLarge, Heading1, Title } from "@/components/type-styles";
 import Button from "@/components/Button";
 import GridCard from "@/components//GridCard";
 import Image from "next/image";
 import EventGallery from "@/components/EventGallery";
-import useResultantTheme from "@/components/hooks/useResultantTheme";
+import { useTheme } from "next-themes";
+import Loading from "./loading";
 
 function HomePage() {
-  const resultantTheme = useResultantTheme();
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return <Loading />;
+
   return (
     <>
       <div className="z-0 relative flex flex-col items-center justify-center text-center my-0 bg-backgroundEmPrimary bg-contain	 bg-no-repeat	gap-16 px-6 py-12 md:py-[84px] !pb-0 min-h-[50vh]">
@@ -40,7 +48,7 @@ function HomePage() {
           className="w-auto min-w-[60%] h-auto z-[1]"
           alt={"woman looking up"}
         />{" "}
-        {resultantTheme && (
+        {resolvedTheme == "dark" && (
           <Image
             src={"/assets/images/stars-background.svg"}
             width={0}
@@ -51,7 +59,7 @@ function HomePage() {
         )}
         <Image
           src={
-            resultantTheme == "light"
+            resolvedTheme == "light"
               ? "/images/clouds.svg"
               : "/images/clouds-dark.svg"
           }
@@ -149,13 +157,16 @@ function HomePage() {
               variant="secondary"
               highlightColor="onBackgroundEmSecondary"
               className="w-full sm:w-auto"
+              href="/sponsors"
             >
               Learn more
             </Button>
           </div>
           <div>
             <Image
-              src="/images/books.svg"
+              src={`/assets/images/books${
+                resolvedTheme === "light" ? "" : "-dark"
+              }.svg`}
               height={0}
               width={0}
               className="w-auto h-auto max-w-[300px] lg:max-w-[400px] xl:max-w-[600px]"
@@ -169,7 +180,7 @@ function HomePage() {
       <div>
         <Image
           src={`./images/boy-kicking-ball${
-            resultantTheme === "dark" ? "-dark" : ""
+            resolvedTheme === "dark" ? "-dark" : ""
           }.svg`}
           width={0}
           height={0}

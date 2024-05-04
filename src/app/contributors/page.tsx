@@ -7,7 +7,7 @@ import {
   Heading1,
   Title,
 } from "@/components/type-styles";
-import React, { use } from "react";
+import React, { useEffect, useState } from "react";
 import FigmaCard from "./components/figma-card";
 import GithubCard from "./components/github-card";
 import { contributions } from "@/data/contributors";
@@ -25,10 +25,16 @@ import {
 import { RefreshCw } from "lucide-react";
 import Image from "next/image";
 import { useTheme } from "next-themes";
+import Loading from "../loading";
 
 export default function Contributors() {
-  const { systemTheme, theme } = useTheme();
-  const resultantTheme = theme === "system" ? systemTheme : theme;
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return <Loading />;
 
   return (
     <div className="bg-backgroundPrimary flex flex-col overflow-x-hidden border-b border-borderPrimary">
@@ -48,14 +54,14 @@ export default function Contributors() {
           </BodyLarge>
         </div>
         <div className=" text-center col-start-1 md:col-start-2 col-end-5 md:col-end-8 lg:col-end-12 flex flex-col gap-8 items-center justify-center">
-          {resultantTheme == "light" && (
+          {resolvedTheme == "light" && (
             <Image
               className="w-full max-w-[100vw]"
               src={FigmaFrameLight}
               alt=""
             ></Image>
           )}
-          {resultantTheme == "dark" && (
+          {resolvedTheme == "dark" && (
             <Image
               className="w-full max-w-[100vw]"
               src={FigmaFrameDark}
@@ -64,14 +70,14 @@ export default function Contributors() {
           )}
         </div>
 
-        {resultantTheme == "light" && (
+        {resolvedTheme == "light" && (
           <Image
             className="w-lvw max-w-[100vw] absolute bottom-0 left-0 right-0"
             src={CloudBottomImage}
             alt=""
           ></Image>
         )}
-        {resultantTheme == "dark" && (
+        {resolvedTheme == "dark" && (
           <Image
             className="w-lvw max-w-[100vw] absolute bottom-0 left-0 right-0"
             src={CloudBottomImageDark}

@@ -5,11 +5,11 @@ import Image from "next/image";
 import { Body, BodySmall, Heading3 } from "./type-styles";
 import SocialRow from "@/app/contributors/components/social-row";
 
-import useResultantTheme from "./hooks/useResultantTheme";
 import Link from "next/link";
+import { useTheme } from "next-themes";
 
 const Footer = () => {
-  const resultantTheme = useResultantTheme();
+  const {resolvedTheme} = useTheme();
 
   return (
     <div className="flex flex-col bg-backgroundPrimary">
@@ -19,7 +19,7 @@ const Footer = () => {
             <Image
               className="h-fit w-auto max-w-64"
               src={
-                resultantTheme == "light"
+                resolvedTheme == "light"
                   ? "/assets/logos/gdsc-horizontal-logo.svg"
                   : "/assets/logos/gdsc-horizontal-logo-dark.svg"
               }
