@@ -32,12 +32,7 @@ enum FormFieldType {
   radio = "radio",
 }
 
-interface FormPageMap {
-  [id: string]: FormPage;
-}
-
-interface FormItem {
-  id: string;
+interface FormItemInput {
   name: string;
   fieldType: FormFieldType;
   placeholder?: string;
@@ -52,29 +47,42 @@ interface FormItem {
   validationRules: ZodSchema;
 }
 
-interface FormGroup {
+interface FormGroupInput {
+  name: string;
+  formItems: FormItemInput[];
+}
+
+interface FormPageInput {
+  name: string;
+  formGroups: FormGroupInput[];
+}
+
+interface FormPageMap {
+  [id: string]: FormPage;
+}
+
+interface FormItem extends FormItemInput {
   id: string;
-  name?: string;
+}
+
+interface FormGroup extends Omit<FormGroupInput, "formItems"> {
+  id: string;
   formItems: { [id: string]: FormItem };
 }
 
-interface FormPage {
+interface FormPage extends Omit<FormPageInput, "formGroups"> {
   id: string;
-  name: string;
   formGroups: { [id: string]: FormGroup };
 }
 
-const formData: FormPageMap = {
-  page1: {
-    id: "page1",
+const formDataInput: FormPageInput[] = [
+  {
     name: "Getting to Know",
-    formGroups: {
-      "page1-group1": {
-        id: "page1-group1",
+    formGroups: [
+      {
         name: "Interests and Expertise",
-        formItems: {
-          "page1-group1-item1": {
-            id: "page1-group1-item1",
+        formItems: [
+          {
             fieldType: FormFieldType.text,
             name: "Areas of Interest",
             description:
@@ -86,8 +94,7 @@ const formData: FormPageMap = {
               message: "Please enter at least one area of interest.",
             }),
           },
-          "page1-group1-item2": {
-            id: "page1-group1-item2",
+          {
             fieldType: FormFieldType.text,
             name: "Programming Languages",
             placeholder: "E.g., Python, Java, JavaScript",
@@ -95,14 +102,12 @@ const formData: FormPageMap = {
             required: false,
             validationRules: z.string().optional(),
           },
-        },
+        ],
       },
-      "page1-group2": {
-        id: "page1-group2",
+      {
         name: "Interests and Expereeetise",
-        formItems: {
-          "page1-group2-item1": {
-            id: "page1-group2-item1",
+        formItems: [
+          {
             fieldType: FormFieldType.checkbox,
             name: "Choose Areas of Interest",
             placeholder: "E.g., Web Development, Data Science",
@@ -129,8 +134,7 @@ const formData: FormPageMap = {
                 message: "You have to select at least two items.",
               }),
           },
-          "page1-group2-item2": {
-            id: "page1-group2-item2",
+          {
             fieldType: FormFieldType.text,
             name: "Programming Languages",
             description: "List any programming languages you're familiar with.",
@@ -138,8 +142,7 @@ const formData: FormPageMap = {
             required: false,
             validationRules: z.string().optional(),
           },
-          "page1-group2-item3": {
-            id: "page1-group2-item3",
+          {
             fieldType: FormFieldType.radio,
             name: "Choose Areas of Interest",
             placeholder: "E.g., Web Development, Data Science",
@@ -163,20 +166,17 @@ const formData: FormPageMap = {
               message: "You need to select an option.",
             }),
           },
-        },
+        ],
       },
-    },
+    ],
   },
-  page2: {
-    id: "page2",
+  {
     name: "Page 2",
-    formGroups: {
-      "page2-group1": {
-        id: "page2-group1",
+    formGroups: [
+      {
         name: "Event Expectations",
-        formItems: {
-          "page2-group1-item1": {
-            id: "page2-group1-item1",
+        formItems: [
+          {
             fieldType: FormFieldType.textarea,
             name: "Event Expectations",
             description:
@@ -188,8 +188,7 @@ const formData: FormPageMap = {
               .string()
               .min(10, { message: "Please provide a detailed response." }),
           },
-          "page2-group1-item2": {
-            id: "page2-group1-item2",
+          {
             fieldType: FormFieldType.text,
             name: "Preferred Sessions",
             placeholder: "E.g., Tech Talk, Hackathon, Coding Workshop",
@@ -198,20 +197,17 @@ const formData: FormPageMap = {
             required: false,
             validationRules: z.string().optional(),
           },
-        },
+        ],
       },
-    },
+    ],
   },
-  page3: {
-    id: "page3",
+  {
     name: "Page 3",
-    formGroups: {
-      "page3-group1": {
-        id: "page3-group1",
+    formGroups: [
+      {
         name: "Additional Information",
-        formItems: {
-          "page3-group1-item1": {
-            id: "page3-group1-item1",
+        formItems: [
+          {
             fieldType: FormFieldType.text,
             name: "Other Comments or Suggestions",
             description:
@@ -220,10 +216,41 @@ const formData: FormPageMap = {
             required: true,
             validationRules: z.string().optional(),
           },
-        },
+        ],
       },
-    },
+    ],
   },
+];
+
+const generateFormPageMap = (formDataInput: FormPageInput[]): FormPageMap => {
+  const formPageMap: FormPageMap = {};
+
+  formDataInput.forEach((page, pageIndex) => {
+    const pageId = `page${pageIndex + 1}`;
+    formPageMap[pageId] = {
+      id: pageId,
+      name: page.name,
+      formGroups: {},
+    };
+    page.formGroups.forEach((group, groupIndex) => {
+      const groupId = `${pageId}-group${groupIndex + 1}`;
+      formPageMap[pageId].formGroups[groupId] = {
+        id: groupId,
+        name: group.name,
+        formItems: {},
+      };
+
+      group.formItems.forEach((item, itemIndex) => {
+        const itemId = `${groupId}-item${itemIndex + 1}`;
+        formPageMap[pageId].formGroups[groupId].formItems[itemId] = {
+          id: itemId,
+          ...item,
+        };
+      });
+    });
+  });
+
+  return formPageMap;
 };
 
 interface createFormElementsProps {
@@ -480,12 +507,18 @@ function GeneratedForm({ data }: GeneratedFormProps) {
 }
 
 export default function Page() {
+  const [formData, setFormData] = useState<FormPageMap>();
+
+  useEffect(() => {
+    setFormData(generateFormPageMap(formDataInput));
+  }, []);
   return (
     <div className="bg-backgroundPrimary flex flex-col overflow-x-hidden border-b border-borderPrimary">
       <div className="relative bg-backgroundSecondary bg-center bg-no-repeat bg-cover grid grid-cols-4 md:grid-cols-8 lg:grid-cols-12 gap-y-6 md:gap-y-12 px-6 py-6 md:py-[84px] min-h-[50vh] justify-center">
         <div className=" text-center col-start-1 md:col-start-2 col-end-5 md:col-end-8 lg:col-end-12 flex flex-col gap-8 items-center justify-center">
           <div className="bg-surfacePrimary px-8 py-12 sm:p-16 max-w-[600px] border border-borderPrimary rounded-lg min-h-[600px]">
-            <GeneratedForm data={formData} />
+            {formData !== undefined && <GeneratedForm data={formData} />}
+            {/* {JSON.stringify(formData)} */}
           </div>
         </div>
       </div>
