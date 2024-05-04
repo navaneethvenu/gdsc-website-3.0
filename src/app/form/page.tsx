@@ -20,6 +20,7 @@ import { ReactElement, useEffect, useState } from "react";
 import { BodySmall, Heading2, Heading3 } from "@/components/type-styles";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 enum FormFieldType {
   text = "text",
@@ -28,6 +29,7 @@ enum FormFieldType {
   number = "number",
   textarea = "textarea",
   checkbox = "checkbox",
+  radio = "radio",
 }
 
 interface FormPageMap {
@@ -135,6 +137,31 @@ const formData: FormPageMap = {
             placeholder: "E.g., Python, Java, JavaScript",
             required: false,
             validationRules: z.string().optional(),
+          },
+          "page1-group2-item3": {
+            id: "page1-group2-item3",
+            fieldType: FormFieldType.radio,
+            name: "Choose Areas of Interest",
+            placeholder: "E.g., Web Development, Data Science",
+            required: true,
+            options: [
+              {
+                id: "web-dev",
+                value: "Web Development",
+              },
+              {
+                id: "app-adev",
+                value: "App Development",
+              },
+              {
+                id: "data-science",
+                label: "Test",
+                value: "Data Science",
+              },
+            ],
+            validationRules: z.string().refine((value) => value !== "", {
+              message: "You need to select an option.",
+            }),
           },
         },
       },
@@ -294,6 +321,31 @@ function createFormElements({
                       ></FormField>
                     ))}
                   </div>
+                ) : item.fieldType === FormFieldType.radio ? (
+                  <RadioGroup
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    className="flex flex-col gap-2"
+                  >
+                    {item.options!.map((option) => (
+                      <FormItem
+                        key={option.id}
+                        className="flex flex-row items-start space-x-3 space-y-0"
+                      >
+                        <FormControl>
+                          <RadioGroupItem
+                            className="data-[state=checked]:text-onBackgroundEmPrimary data-[state=checked]:border-onBackgroundEmPrimary"
+                            value={option.id}
+                          />
+                        </FormControl>
+                        <FormLabel className="font-normal">
+                          {option.label !== undefined
+                            ? option.label
+                            : option.value}
+                        </FormLabel>
+                      </FormItem>
+                    ))}
+                  </RadioGroup>
                 ) : (
                   <Input
                     type={item.fieldType}
