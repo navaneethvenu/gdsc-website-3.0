@@ -26,7 +26,6 @@ const GridCard = ({
   cardBorderColor,
   variant = "secondary",
 }: GridCardProps) => {
-  console.log(image);
   return (
     <div
       className={`text-start flex flex-col items-start gap-16 py-12 px-8 md:py-16 md:px-12 rounded-xl justify-between ${backgroundColor} hover:outline hover:outline-[1px] hover:outline-${cardBorderColor}`}

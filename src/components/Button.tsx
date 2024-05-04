@@ -31,7 +31,11 @@ export default function Button({
       }
       ${
         variant === "primary"
-          ? "hover:bg-onBackgroundEmPrimary"
+          ? `hover:bg-${
+              highlightColor !== undefined
+                ? highlightColor
+                : "onBackgroundEmPrimary"
+            }`
           : `hover:bg-white/50 dark:hover:bg-white/10 hover:border-${
               highlightColor !== undefined
                 ? highlightColor

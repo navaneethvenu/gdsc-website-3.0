@@ -1,21 +1,27 @@
 "use client";
 
 import { Body, BodyLarge, Title } from "@/components/type-styles";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Clouds4 from "@/../public/assets/images/clouds-4.svg";
 import Clouds0 from "@/../public/assets/images/clouds-0.svg";
-import Header from "@/components/Header";
 import Image from "next/image";
-import useResultantTheme from "@/components/hooks/useResultantTheme";
 import CloudBottomImage from "@/../public/assets/images/clouds-bottom.png";
 import CloudBottomImageDark from "@/../public/assets/images/clouds-bottom-dark.png";
 import Button from "@/components/Button";
+import { useTheme } from "next-themes";
+import Loading from "./loading";
 
 export default function NotFound() {
-  const resultantTheme = useResultantTheme();
+  const { resolvedTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) return <Loading />
   return (
     <div className="relative bg-backgroundEmPrimary flex flex-col min-h-[100vh] pb-12 pb-[84px]">
-      {resultantTheme == "dark" && (
+      {resolvedTheme == "dark" && (
         <Image
           layout="fill"
           src={"/assets/images/stars-background.svg"}
@@ -48,14 +54,14 @@ export default function NotFound() {
           <Clouds4 className="text-illoSurfacePrimary animate-[bounce_16s_ease-in-out_infinite] max-w-32 sm:max-w-40 md:max-w-48 lg:max-w-56"></Clouds4>
         </div>
       </div>
-      {resultantTheme == "light" && (
+      {resolvedTheme == "light" && (
         <Image
           className="w-lvw max-w-[100vw] absolute bottom-0 left-0 right-0"
           src={CloudBottomImage}
           alt=""
         ></Image>
       )}
-      {resultantTheme == "dark" && (
+      {resolvedTheme == "dark" && (
         <Image
           className="w-lvw max-w-[100vw] absolute bottom-0 left-0 right-0"
           src={CloudBottomImageDark}

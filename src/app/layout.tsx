@@ -54,24 +54,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={googleSans.className}>
-        {
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <Suspense fallback={<Loading />}>
-              <main className="flex flex-col justify-center overflow-x-hidden relative">
-                <Header />
-                {children}
-                <Footer />
-              </main>
-            </Suspense>
-          </ThemeProvider>
-        }
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Suspense fallback={<Loading />}>
+            <main className="flex flex-col justify-center overflow-x-hidden relative">
+              <Header />
+              <div className="mt-24"></div>  {/* spacing for sticky header */}
+              {children}
+              <Footer />
+            </main>
+          </Suspense>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import { useTheme } from "next-themes";
 import ReusableContextMenu from "./ui/reusable-context-menu";
 import { Moon, Sun } from "@phosphor-icons/react";
 import { Button } from "./ui/button";
 import { LoaderCircle } from "lucide-react";
+import { animated, useSpring } from "@react-spring/web";
 
 interface ToggleButtonProps {
   className?: string;
@@ -12,7 +12,17 @@ interface ToggleButtonProps {
 
 const ToggleButton = ({ className }: ToggleButtonProps) => {
   const { theme, setTheme, systemTheme } = useTheme();
+  const [mounted, setMounted] = useState(false)
   const [isDarkMode, setIsDarkMode] = useState<boolean | null>(null);
+
+  const toggleAnimation = useSpring({
+    config: { duration: 100 },
+    transform: isDarkMode ? 'translateX(2rem)' : 'translateX(0)',
+  });
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     // Check if theme is already set in local storage
@@ -45,7 +55,7 @@ const ToggleButton = ({ className }: ToggleButtonProps) => {
     setIsDarkMode(systemTheme === "dark");
   };
 
-  if (isDarkMode === null) {
+  if (isDarkMode === null || !mounted) {
     // Display a loading indicator while determining the initial theme
     return (
       <LoaderCircle className="text-onBackgroundEmPrimary animate-spin"></LoaderCircle>
@@ -57,7 +67,6 @@ const ToggleButton = ({ className }: ToggleButtonProps) => {
       items={[
         {
           name: "Dark Theme",
-
           onClick: () => toggleTheme(true),
         },
         {
@@ -75,11 +84,11 @@ const ToggleButton = ({ className }: ToggleButtonProps) => {
         className={`${className} flex p-1 !bg-onBackgroundEmPrimary justify-between items-center w-14 h-6 rounded-full`}
         onClick={() => toggleTheme()}
       >
-        <div
-          className={`rounded-full w-4 h-4 bg-backgroundPrimary transition-transform ${
-            isDarkMode ? "transform translate-x-8" : ""
-          }`}
-        ></div>
+        <animated.div
+          className={`rounded-full w-4 h-4 bg-backgroundPrimary transition-transform`}
+          style={toggleAnimation}
+        ></animated.div>
+
         {isDarkMode ? (
           <Moon
             weight="fill"
