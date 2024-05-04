@@ -4,11 +4,9 @@ import {AccountType} from "./account-type"
 
 export interface User extends Omit<Individual, 'sponsorships'>
 {
+    id:string,
     join_date: string,
-    preferred_name: string,
-    pronouns: string,
-    emails: string[],
-    number: string[],
     status: AccountStatus,
     type: AccountType,
+    individualId?: string,
 }

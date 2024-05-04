@@ -5,6 +5,7 @@ import { Sponsorship } from "../sponsorship";
 export interface Organisation extends Entity
 {
     entityType: EntityType.Organisation,
+    orgType: OrganisationType
     aliases?: string[],
     location?: string,
 }
