@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Control, useForm } from "react-hook-form";
+import { Control, UseFormReturn, useForm } from "react-hook-form";
 import { ZodSchema, z } from "zod";
 
 import Button from "@/components/Button";
@@ -21,6 +21,21 @@ import { BodySmall, Heading2, Heading3 } from "@/components/type-styles";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandInput,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from "@/components/ui/command";
+import { cn } from "@/lib/utils";
+import { ChevronsUpDown, Check } from "lucide-react";
+import { CommandList } from "cmdk";
 
 enum FormFieldType {
   TEXT = "text",
@@ -29,6 +44,7 @@ enum FormFieldType {
   TEXTAREA = "textarea",
   CHECKBOX = "checkbox",
   RADIO = "radio",
+  DROPDOWN = "dropdown",
 }
 
 interface FormItemInput {
@@ -131,8 +147,8 @@ const formDataInput: FormPageInput[] = [
             defaultValue: ["data-science"],
             validationRules: z
               .array(z.string())
-              .refine((value) => value.length > 1, {
-                message: "You have to select at least two items.",
+              .refine((value) => value.length > 0, {
+                message: "You have to select at least one item.",
               }),
           },
           {
@@ -144,7 +160,7 @@ const formDataInput: FormPageInput[] = [
             validationRules: z.string().optional(),
           },
           {
-            fieldType: FormFieldType.RADIO,
+            fieldType: FormFieldType.DROPDOWN,
             name: "Choose Areas of Interest",
             placeholder: "E.g., Web Development, Data Science",
             required: true,
@@ -163,6 +179,7 @@ const formDataInput: FormPageInput[] = [
                 value: "Data Science",
               },
             ],
+
             validationRules: z.string().refine((value) => value !== "", {
               message: "You need to select an option.",
             }),
@@ -255,18 +272,19 @@ const generateFormPageMap = (formDataInput: FormPageInput[]): FormPageMap => {
 };
 
 interface createFormElementsProps {
-  control: Control<
+  form: UseFormReturn<
     {
       [x: string]: any;
     },
-    any
+    any,
+    undefined
   >;
   currentPage: number;
   data: FormPageMap;
 }
 
 function createFormElements({
-  control,
+  form,
   currentPage,
   data,
 }: createFormElementsProps) {
@@ -282,7 +300,7 @@ function createFormElements({
       groupElements.push(
         <FormField
           key={item.id}
-          control={control}
+          control={form.control}
           name={item.id}
           render={({ field }) => (
             <FormItem
@@ -314,7 +332,7 @@ function createFormElements({
                     {item.options!.map((option) => (
                       <FormField
                         key={option.id}
-                        control={control}
+                        control={form.control}
                         name={item.id}
                         render={({ field }) => (
                           <FormItem
@@ -374,6 +392,68 @@ function createFormElements({
                       </FormItem>
                     ))}
                   </RadioGroup>
+                ) : item.fieldType === FormFieldType.DROPDOWN ? (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <div>
+                          <Button
+                            variant="secondary"
+                            role="combobox"
+                            className={cn(
+                              "rounded-lg bg-surfaceSecondary border-borderSecondary",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            <div className="flex gap-2 items-center">
+                              {field.value
+                                ? item.options?.find(
+                                    (option) => option.id === field.value
+                                  )?.value
+                                : item.placeholder}
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </div>
+                          </Button>
+                        </div>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[200px] p-0">
+                      <Command className="bg-surfaceSecondary text-onBackgroundPrimary border-borderSecondary">
+                        <CommandInput
+                          className="placeholder:text-onBackgroundTertiary"
+                          placeholder={item.placeholder}
+                        />
+                        <CommandEmpty>No options found.</CommandEmpty>
+                        <CommandGroup>
+                          <CommandList>
+                            {item.options?.map((option) => (
+                              <CommandItem
+                                className="aria-selected:bg-onBackgroundEmPrimary text-onBackgroundSecondary aria-selected:text-onBackgroundPrimary data-[disabled]:opacity-100"
+                                value={option.value}
+                                key={option.id}
+                                onSelect={() => {
+                                  console.log(item.id + option.id);
+                                  form.setValue(item.id, option.id);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    option.id === field.value
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                                {option.label !== undefined
+                                  ? option.label
+                                  : option.value}
+                              </CommandItem>
+                            ))}
+                          </CommandList>
+                        </CommandGroup>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                 ) : (
                   <Input
                     autoComplete="on"
@@ -456,7 +536,7 @@ function GeneratedForm({ data }: GeneratedFormProps) {
 
   useEffect(() => {
     setFormElements(
-      createFormElements({ control: form.control, currentPage, data: data })
+      createFormElements({ form: form, currentPage, data: data })
     );
   }, [form, currentPage, data]);
 
