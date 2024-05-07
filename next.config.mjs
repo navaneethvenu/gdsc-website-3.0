@@ -9,6 +9,19 @@ const nextConfig = {
         },
     },
 
+    async rewrites() {
+      return [
+        {
+          source: '/e/:id',
+          destination: '/event/:id',
+        },
+        {
+          source: '/events/:id',
+          destination: '/event/:id',
+        },
+      ]
+    },
+
     webpack: (config, { isServer }) => {
         // Add SVGR loader
         config.module.rules.push({
