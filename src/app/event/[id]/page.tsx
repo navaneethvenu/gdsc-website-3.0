@@ -25,7 +25,7 @@ function Event() {
   const [mounted, setMounted] = useState(false);
 
   const gridStyle = "grid gap-3 grid-cols-1 md:grid-cols-2";
-  const carouselItems = "sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
+  const carouselItems = "sm:basis-1/2 lg:basis-1/3 xl:basis-1/4";
   const newSection = "flex flex-col gap-2 mt-12";
 
   useEffect(() => {
@@ -34,17 +34,20 @@ function Event() {
 
   if (!mounted) return <Loading />;
   return (
-    <div className="h-full w-full">
-      <section id="Event_banner" className="relative">
+    <div className="h-full w-full bg-backgroundPrimary">
+      <section
+        id="Event_banner"
+        className="relative overflow-hidden flex p-16 items-center justify-center"
+      >
         <Image
           src={banner}
           alt={""}
-          className=" w-full max-h-[30vh] object-fill blur-xl"
+          className="w-[200px] h-[200px] object-cover rounded-xl z-[1]"
         />
         <Image
           src={banner}
           alt={""}
-          className="absolute left-0 right-0 top-0 bottom-0 m-auto w-[150px] h-[150px] object-cover"
+          className="absolute w-full h-full object-fill blur-3xl"
         />
       </section>
 
@@ -146,50 +149,50 @@ function Event() {
       </section>
 
       <section className="p-2 md:p-0 max-w-[calc(780px+(100%-780px)/2)] ml-auto flex flex-col gap-12 my-12">
-          <EventCarousel title="Sponsors">
-            <CarouselItem className={carouselItems}>
-              <SponsorCard />
-            </CarouselItem>
-            <CarouselItem className={carouselItems}>
-              <SponsorCard />
-            </CarouselItem>
-            <CarouselItem className={carouselItems}>
-              <SponsorCard />
-            </CarouselItem>
-            <CarouselItem className={carouselItems}>
-              <SponsorCard />
-            </CarouselItem>
-          </EventCarousel>
+        <EventCarousel title="Sponsors">
+          <CarouselItem className={carouselItems}>
+            <SponsorCard />
+          </CarouselItem>
+          <CarouselItem className={carouselItems}>
+            <SponsorCard />
+          </CarouselItem>
+          <CarouselItem className={carouselItems}>
+            <SponsorCard />
+          </CarouselItem>
+          <CarouselItem className={carouselItems}>
+            <SponsorCard />
+          </CarouselItem>
+        </EventCarousel>
 
-          <EventCarousel title="Gallery">
-            <CarouselItem className={carouselItems}>
-              <EventCard />
-            </CarouselItem>
-            <CarouselItem className={carouselItems}>
-              <EventCard />
-            </CarouselItem>
-            <CarouselItem className={carouselItems}>
-              <EventCard />
-            </CarouselItem>
-          </EventCarousel>
+        <EventCarousel title="Gallery">
+          <CarouselItem className={carouselItems}>
+            <EventCard />
+          </CarouselItem>
+          <CarouselItem className={carouselItems}>
+            <EventCard />
+          </CarouselItem>
+          <CarouselItem className={carouselItems}>
+            <EventCard />
+          </CarouselItem>
+        </EventCarousel>
 
-          <EventCarousel title="Testimonials">
-            <CarouselItem className={carouselItems}>
-              <TestimonialCard />
-            </CarouselItem>
-            <CarouselItem className={carouselItems}>
-              <TestimonialCard />
-            </CarouselItem>
-            <CarouselItem className={carouselItems}>
-              <TestimonialCard />
-            </CarouselItem>
-            <CarouselItem className={carouselItems}>
-              <TestimonialCard />
-            </CarouselItem>
-            <CarouselItem className={carouselItems}>
-              <TestimonialCard />
-            </CarouselItem>
-          </EventCarousel>
+        <EventCarousel title="Testimonials">
+          <CarouselItem className={carouselItems}>
+            <TestimonialCard />
+          </CarouselItem>
+          <CarouselItem className={carouselItems}>
+            <TestimonialCard />
+          </CarouselItem>
+          <CarouselItem className={carouselItems}>
+            <TestimonialCard />
+          </CarouselItem>
+          <CarouselItem className={carouselItems}>
+            <TestimonialCard />
+          </CarouselItem>
+          <CarouselItem className={carouselItems}>
+            <TestimonialCard />
+          </CarouselItem>
+        </EventCarousel>
       </section>
     </div>
   );
