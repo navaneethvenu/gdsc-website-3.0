@@ -70,7 +70,7 @@ const Body = styled.p`
 `;
 
 const BodySmall = styled.p`
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 400;
   line-height: 1.4;
   letter-spacing: 0em;
