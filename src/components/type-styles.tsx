@@ -37,6 +37,20 @@ const Heading3 = styled.h4`
   letter-spacing: -0.02em;
 `;
 
+const Heading4 = styled.h5`
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.6;
+  letter-spacing: -0.02em;
+`;
+
+const Heading5 = styled.h6`
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+`;
+
 const BodyLarge = styled.p`
   font-size: 24px;
   font-weight: 400;
@@ -62,4 +76,14 @@ const BodySmall = styled.p`
   letter-spacing: 0em;
 `;
 
-export { Title, Heading1, Heading2, Heading3, BodyLarge, Body, BodySmall };
+export {
+  Title,
+  Heading1,
+  Heading2,
+  Heading3,
+  Heading4,
+  Heading5,
+  BodyLarge,
+  Body,
+  BodySmall,
+};
