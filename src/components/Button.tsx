@@ -18,6 +18,8 @@ export default function Button({
   return (
     <ButtonComponent
       className={`rounded-full ${
+        props.disabled ? "opacity-30 pointer-events-none" : ""
+      } ${
         variant === "primary" ? "bg-backgroundInversePrimary" : "bg-transparent"
       } ${
         variant === "primary"
@@ -29,6 +31,7 @@ export default function Button({
           ? "border-none"
           : "border border-onBackgroundPrimary"
       }
+      
       ${
         variant === "primary"
           ? `hover:bg-${
