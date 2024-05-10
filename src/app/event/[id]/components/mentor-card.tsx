@@ -6,7 +6,7 @@ import React from "react";
 
 export default function MentorCard() {
   return (
-    <Card className="bg-surfacePrimary border-borderPrimary flex flex-col justify-between ">
+    <Card className="bg-surfacePrimary border-borderPrimary flex flex-col justify-between shadow-none overflow-hidden">
       <CardHeader className="flex flex-col justify-around">
         <Image
           src="/assets/images/team-photos/bengeorgenetto.png"

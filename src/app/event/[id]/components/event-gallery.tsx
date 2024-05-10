@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 
 export default function EventCard() {
   return (
-    <Card className="w-full rounded-lg aspect-square overflow-hidden">
+    <Card className="w-full rounded-lg aspect-square overflow-hidden shadow-none">
       <Image
         src={"/images/9cb106030ddb6e6761ba6e6237de936e.png"}
         alt={""}
