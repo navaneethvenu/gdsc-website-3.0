@@ -7,7 +7,7 @@ import React from "react";
 
 export default function SponsorCard() {
   return (
-    <Card className="flex flex-col justify-between bg-surfacePrimary border-borderPrimary">
+    <Card className="flex flex-col justify-between bg-surfacePrimary border-borderPrimary overflow-hidden shadow-none">
       <CardHeader className="flex flex-col justify-around">
         <Image
           src="/images/1635caca9130d9ea879169d6b0025199.png"
@@ -20,7 +20,7 @@ export default function SponsorCard() {
         <Body className="text-onBackgroundSecondary">Gold Sponsor</Body>
       </CardHeader>
       <CardFooter className=" flex gap-3 ">
-        <Button variant="primary" disabled className="w-full">
+        <Button variant="primary" className="w-full">
           Learn more
         </Button>
       </CardFooter>
