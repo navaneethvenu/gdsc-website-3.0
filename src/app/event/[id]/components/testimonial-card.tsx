@@ -1,11 +1,11 @@
-import { Body, BodySmall } from "@/components/type-styles";
+import { Body, BodySmall, Heading5 } from "@/components/type-styles";
 import { Card, CardFooter, CardHeader } from "@/components/ui/card";
 import Image from "next/image";
 import React from "react";
 
 export default function TestimonialCard() {
   return (
-    <Card className="bg-surfacePrimary border-borderPrimary rounded-lg rounded-bl-none gap-2 flex flex-col">
+    <Card className="bg-surfacePrimary border-borderPrimary rounded-lg rounded-bl-none gap-2 flex flex-col overflow-hidden shadow-none">
       <CardHeader>
         <Body className="text-onBackgroundSecondary">
           Lorem, ipsum dolor sit amet consectetur adipisicing elit. Distinctio
@@ -23,7 +23,7 @@ export default function TestimonialCard() {
           className="bg-backgroundEmPrimary rounded-xl w-[42px] h-[42px] object-cover"
         />
         <div className="px-3">
-          <p>Ben George Netto</p>
+          <Heading5>Ben George Netto</Heading5>
           <BodySmall className="text-onBackgroundTertiary">
             1 year ago
           </BodySmall>

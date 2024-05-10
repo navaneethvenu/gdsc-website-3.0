@@ -12,6 +12,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import {
   Body,
+  BodySmall,
   Heading3,
   Heading4,
   Heading5,
@@ -60,9 +61,9 @@ function Event() {
           <div className="w-full flex flex-col items-center gap-8 ">
             <div className="flex flex-col gap-6">
               <div className="flex justify-center gap-2">
-                <Body>Featured in</Body>
-                <Badge className="bg-backgroundEmPrimary font-normal hover:bg-onBackgroundEmPrimary text-onBackgroundPrimary">
-                  Design
+                <Body className="text-onBackgroundSecondary">Featured in</Body>
+                <Badge className="bg-backgroundEmPrimary hover:bg-onBackgroundEmPrimary hover:text-onBackgroundInversePrimary text-onBackgroundPrimary">
+                  <BodySmall>Design</BodySmall>
                 </Badge>
               </div>
               <Title>UXTopia: Design Week</Title>

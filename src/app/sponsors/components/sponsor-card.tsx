@@ -31,7 +31,7 @@ export default function SponsorCard({ sponsor }: SponsorCardProps) {
           </div>
           <div className="flex flex-col gap-8">
             <div>
-              <BodyLarge>{sponsor.name}</BodyLarge>
+              <Heading3>{sponsor.name}</Heading3>
               <Body className="text-onBackgroundSecondary">
                 {sponsor.events.length == 1 || sponsor.events.length == 2
                   ? sponsor.events.map((event) => event.name).join(", ")
