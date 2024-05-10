@@ -21,7 +21,6 @@ import SkillsCard from "./components/skill-card";
 import MentorCard from "./components/mentor-card";
 import Loading from "@/app/loading";
 import EventCarousel from "./components/event-carousel";
-import { CarouselItem } from "@/components/ui/carousel";
 import SponsorCard from "./components/sponsor-card";
 import EventCard from "./components/event-gallery";
 import TestimonialCard from "./components/testimonial-card";
@@ -29,9 +28,6 @@ import Button from "@/components/Button";
 
 function Event() {
   const [mounted, setMounted] = useState(false);
-
-  const gridStyle = "grid gap-3 grid-cols-1 md:grid-cols-2";
-  const carouselItems = "sm:basis-1/2 lg:basis-1/3 xl:basis-1/4";
   const newSection = "flex flex-col gap-4";
 
   useEffect(() => {
