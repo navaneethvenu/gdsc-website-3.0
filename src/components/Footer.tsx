@@ -69,7 +69,7 @@ const Footer = () => {
               grow={false}
               socials={{
                 twitter: "gdscmbcet",
-                linkedin: "gdscmbcet",
+                linkedincompany: "dsc-mbcet",
                 instagram: "gdscmbcet",
                 github: "dscmbcet",
               }}
