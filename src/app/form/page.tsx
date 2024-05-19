@@ -17,7 +17,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ReactElement, useEffect, useState } from "react";
-import { BodySmall, Heading2, Heading3 } from "@/components/type-styles";
+import {
+  Body,
+  BodySmall,
+  Heading1,
+  Heading2,
+  Heading3,
+} from "@/components/type-styles";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -383,6 +389,32 @@ const formDataInput: FormPageInput[] = [
   },
 ];
 
+const formInput: FormInput = {
+  formDataInput: formDataInput,
+  editable: true,
+  customSubmissionTitle: "Thank you for your submission!",
+  customSubmissionMessage:
+    "We will review your submission and get back to you shortly.",
+};
+
+interface FormInput {
+  formDataInput: FormPageInput[];
+  editable: boolean;
+  customSubmissionTitle: string;
+  customSubmissionMessage: string;
+}
+
+interface FormOutput {
+  formDataOutput: {
+    timestamp: string;
+    formData: JSON;
+  }[];
+}
+
+const formOutput: FormOutput = {
+  formDataOutput: [],
+};
+
 const generateFormPageMap = (formDataInput: FormPageInput[]): FormPageMap => {
   const formPageMap: FormPageMap = {};
 
@@ -702,6 +734,7 @@ interface GeneratedFormProps {
 function GeneratedForm({ data }: GeneratedFormProps) {
   const [currentPage, setCurrentPage] = useState(0);
   const [formElements, setFormElements] = useState<ReactElement[]>([]);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const FormSchema = z.object(
     Object.values(data).reduce((acc: { [id: string]: ZodSchema }, page) => {
@@ -736,7 +769,13 @@ function GeneratedForm({ data }: GeneratedFormProps) {
   }, [form, currentPage, data]);
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log(JSON.stringify(data, null, 2));
+    formOutput.formDataOutput.push({
+      timestamp: Date.now().toString(),
+      formData: JSON.parse(JSON.stringify(data)),
+    });
+    console.log(formOutput);
+    setIsSubmitted(true);
+    setCurrentPage(0);
   }
 
   async function handleNextPage(e: React.SyntheticEvent<HTMLButtonElement>) {
@@ -756,29 +795,54 @@ function GeneratedForm({ data }: GeneratedFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        {formElements}
-        <div className="flex justify-between gap-4">
-          {currentPage > 0 && (
-            <Button
-              className="w-full"
-              variant="secondary"
-              onClick={handlePrevPage}
-            >
-              Previous
-            </Button>
-          )}
-          {currentPage < Object.values(data).length - 1 ? (
-            <Button className="w-full" onClick={handleNextPage}>
-              Next
+      {!isSubmitted ? (
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          {formElements}
+          <div className="flex justify-between gap-4">
+            {currentPage > 0 && (
+              <Button
+                className="w-full"
+                variant="secondary"
+                onClick={handlePrevPage}
+              >
+                Previous
+              </Button>
+            )}
+            {currentPage < Object.values(data).length - 1 ? (
+              <Button className="w-full" onClick={handleNextPage}>
+                Next
+              </Button>
+            ) : (
+              <Button className="w-full" type="submit">
+                Submit
+              </Button>
+            )}
+          </div>
+        </form>
+      ) : (
+        <div className="flex flex-col gap-8">
+          <div className="flex flex-col gap-2">
+            <Heading2>
+              {formInput.customSubmissionTitle ??
+                "Thank you for your submission!"}
+            </Heading2>
+            <Body className="text-onBackgroundSecondary">
+              {formInput.customSubmissionMessage ??
+                "Your response has been recorded!"}
+            </Body>
+          </div>
+
+          {formInput.editable ? (
+            <Button className="w-full" onClick={() => setIsSubmitted(false)}>
+              Edit Response
             </Button>
           ) : (
-            <Button className="w-full" type="submit">
-              Submit
+            <Button className="w-full" href="/">
+              Return Home
             </Button>
           )}
         </div>
-      </form>
+      )}
     </Form>
   );
 }
@@ -793,7 +857,7 @@ export default function Page() {
     <div className="bg-backgroundPrimary flex flex-col overflow-x-hidden border-b border-borderPrimary">
       <div className="relative bg-backgroundSecondary bg-center bg-no-repeat bg-cover grid grid-cols-4 md:grid-cols-8 lg:grid-cols-12 gap-y-6 md:gap-y-12 px-6 py-6 md:py-[84px] min-h-[50vh] justify-center">
         <div className=" text-center col-start-1 md:col-start-2 col-end-5 md:col-end-8 lg:col-end-12 flex flex-col gap-8 items-center justify-center">
-          <div className="bg-surfacePrimary px-8 py-12 sm:p-16 max-w-[600px] border border-borderPrimary rounded-lg min-h-[600px]">
+          <div className="bg-surfacePrimary px-8 py-12 sm:p-16 max-w-[600px] border border-borderPrimary rounded-lg">
             {formData !== undefined && <GeneratedForm data={formData} />}
             {/* {JSON.stringify(formData)} */}
           </div>
