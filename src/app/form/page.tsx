@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Control, UseFormReturn, useForm } from "react-hook-form";
-import { ZodSchema, z } from "zod";
+import { ZodArray, ZodNumber, ZodOptional, ZodSchema, ZodString, z } from "zod";
 
 import Button from "@/components/Button";
 
@@ -49,17 +49,24 @@ enum FormFieldType {
 
 interface FormItemInput {
   name: string;
+  nameOverride?: string;
   fieldType: FormFieldType;
   placeholder?: string;
   description?: string;
   required?: boolean;
-  defaultValue?: string | string[];
-  options?: {
-    id: string;
-    label?: any;
-    value: any;
-  }[];
-  validationRules: ZodSchema;
+  defaultValue?: string | number | (string | number)[];
+  options?: FormOptionInput[];
+  min?: number;
+  max?: number;
+  validationRules?: {
+    validator: (data: any) => any;
+    params?: { message?: string; path?: (string | number)[]; params?: object };
+  };
+}
+
+interface FormOptionInput {
+  label?: string;
+  value: string;
 }
 
 interface FormGroupInput {
@@ -76,8 +83,15 @@ interface FormPageMap {
   [id: string]: FormPage;
 }
 
-interface FormItem extends FormItemInput {
+interface FormOption extends FormOptionInput {
   id: string;
+}
+
+interface FormItem extends Omit<FormItemInput, "options"> {
+  id: string;
+  options?: {
+    [id: string]: FormOption;
+  };
 }
 
 interface FormGroup extends Omit<FormGroupInput, "formItems"> {
@@ -90,6 +104,141 @@ interface FormPage extends Omit<FormPageInput, "formGroups"> {
   formGroups: { [id: string]: FormGroup };
 }
 
+function generateZodSchema(item: FormItem): ZodSchema {
+  let baseSchema: ZodSchema;
+
+  switch (item.fieldType) {
+    case FormFieldType.TEXT:
+    case FormFieldType.TEXTAREA:
+    case FormFieldType.EMAIL:
+      baseSchema = z.string();
+      break;
+    case FormFieldType.NUMBER:
+      baseSchema = z.coerce.number({
+        required_error: `${item.name} cannot be empty`,
+        invalid_type_error: `${item.name} cannot be empty`, //when it recieves NaN
+      });
+      break;
+    case FormFieldType.CHECKBOX:
+      baseSchema = z.array(z.string());
+
+      break;
+    case FormFieldType.RADIO:
+    case FormFieldType.DROPDOWN:
+      baseSchema = z.string();
+      break;
+    default:
+      throw new Error(`Unsupported field type: ${item.fieldType}`);
+  }
+
+  if (
+    item.fieldType === FormFieldType.TEXT ||
+    item.fieldType === FormFieldType.TEXTAREA
+  ) {
+    baseSchema = (baseSchema as ZodString).trim();
+    if (item.required)
+      baseSchema = (baseSchema as ZodString).min(1, {
+        message: `${item.nameOverride ?? item.name} cannot be empty.`,
+      });
+
+    if (item.required && item.min !== undefined && item.min !== null) {
+      baseSchema = (baseSchema as ZodString).min(
+        item.min,
+        `${item.nameOverride ?? item.name} must be at minimum ${
+          item.min
+        } characters long`
+      );
+    }
+
+    if (item.max !== undefined && item.max !== null) {
+      baseSchema = (baseSchema as ZodString).max(
+        item.max,
+        `${item.nameOverride ?? item.name} must be at most ${
+          item.max
+        } characters long`
+      );
+    }
+  }
+
+  if (item.fieldType === FormFieldType.NUMBER) {
+    if (item.required && item.min !== undefined && item.min !== null) {
+      baseSchema = (baseSchema as ZodNumber).min(
+        item.min,
+        `${item.nameOverride ?? item.name} cannot be lesser than ${item.min}`
+      );
+    }
+
+    if (item.max !== undefined && item.max !== null) {
+      baseSchema = (baseSchema as ZodNumber).max(
+        item.max,
+        `${item.nameOverride ?? item.name} cannot be greater than ${item.max}`
+      );
+    }
+
+    if (item.required)
+      baseSchema = z.preprocess(
+        (a) => parseInt(z.string().parse(a), 10),
+        baseSchema
+      );
+    else
+      baseSchema = z
+        .literal("")
+        .transform(() => undefined)
+        .or(baseSchema)
+        .optional();
+
+    return baseSchema;
+  }
+
+  if (item.fieldType === FormFieldType.EMAIL) {
+    baseSchema = (baseSchema as ZodString).email({
+      message: `${
+        item.nameOverride ?? item.name
+      } must be a valid email address.`,
+    });
+  }
+
+  if (item.fieldType === FormFieldType.CHECKBOX) {
+    if (item.required)
+      baseSchema = (baseSchema as ZodArray<ZodString>).min(1, {
+        message: `You must choose at least one value.`,
+      });
+
+    if (item.min && item.min !== undefined)
+      baseSchema = (baseSchema as ZodArray<ZodString>).min(item.min, {
+        message: `You must choose at least ${item.min} values.`,
+      });
+
+    if (item.max && item.max !== undefined)
+      baseSchema = (baseSchema as ZodArray<ZodString>).max(item.max, {
+        message: `You can choose at most ${item.max} values.`,
+      });
+  }
+
+  if (
+    item.fieldType === FormFieldType.DROPDOWN ||
+    item.fieldType === FormFieldType.RADIO
+  ) {
+    if (item.required)
+      baseSchema = (baseSchema as ZodArray<ZodString>).min(1, {
+        message: `${item.nameOverride ?? item.name} cannot be empty.`,
+      });
+  }
+
+  if (item.validationRules) {
+    baseSchema = baseSchema.refine(
+      item.validationRules.validator,
+      item.validationRules.params
+    );
+  }
+
+  if (!item.required) {
+    baseSchema = baseSchema.optional();
+  }
+
+  return baseSchema;
+}
+
 const formDataInput: FormPageInput[] = [
   {
     name: "Getting to Know",
@@ -98,26 +247,27 @@ const formDataInput: FormPageInput[] = [
         name: "Interests and Expertise",
         formItems: [
           {
-            fieldType: FormFieldType.TEXT,
+            fieldType: FormFieldType.NUMBER,
             name: "Areas of Interest",
             description:
               "Enter the fields or areas you're interested in (e.g., Web Development, Machine Learning, Cybersecurity, etc.).",
             placeholder: "E.g., Web Development, Data Science",
-            defaultValue: "This is a test",
-            required: true,
-            validationRules: z.string().min(2, {
-              message: "Please enter at least one area of interest.",
-            }),
+            max: 4,
+            // defaultValue: 1,
+            required: false,
           },
           {
             fieldType: FormFieldType.EMAIL,
-            name: "Programming Languages",
+            name: "Programming Email",
             placeholder: "E.g., Python, Java, JavaScript",
             description: "List any programming languages you're familiar with.",
             required: true,
-            validationRules: z.string().min(1, {
-              message: "Please enter at least one area of interest.",
-            }),
+            validationRules: {
+              validator: (value) => value.endsWith("gmail.com"),
+              params: {
+                message: "email must end in gmail",
+              },
+            },
           },
         ],
       },
@@ -129,27 +279,21 @@ const formDataInput: FormPageInput[] = [
             name: "Choose Areas of Interest",
             placeholder: "E.g., Web Development, Data Science",
             required: true,
+            min: 2,
+            max: 2,
             options: [
               {
-                id: "web-dev",
                 value: "Web Development",
               },
               {
-                id: "app-adev",
                 value: "App Development",
               },
               {
-                id: "data-science",
                 label: "Test",
                 value: "Data Science",
               },
             ],
-            defaultValue: ["data-science"],
-            validationRules: z
-              .array(z.string())
-              .refine((value) => value.length > 0, {
-                message: "You have to select at least one item.",
-              }),
+            defaultValue: ["page1-group2-item1-option1"],
           },
           {
             fieldType: FormFieldType.TEXT,
@@ -157,32 +301,25 @@ const formDataInput: FormPageInput[] = [
             description: "List any programming languages you're familiar with.",
             placeholder: "E.g., Python, Java, JavaScript",
             required: false,
-            validationRules: z.string().optional(),
           },
           {
             fieldType: FormFieldType.DROPDOWN,
             name: "Choose Areas of Interest",
+            nameOverride: "Areas of Interest",
             placeholder: "E.g., Web Development, Data Science",
             required: true,
             options: [
               {
-                id: "web-dev",
                 value: "Web Development",
               },
               {
-                id: "app-adev",
                 value: "App Development",
               },
               {
-                id: "data-science",
                 label: "Test",
                 value: "Data Science",
               },
             ],
-
-            validationRules: z.string().refine((value) => value !== "", {
-              message: "You need to select an option.",
-            }),
           },
         ],
       },
@@ -202,9 +339,7 @@ const formDataInput: FormPageInput[] = [
             placeholder:
               "E.g., Learn about different career paths, network with industry professionals",
             required: true,
-            validationRules: z
-              .string()
-              .min(10, { message: "Please provide a detailed response." }),
+            max: 12,
           },
           {
             fieldType: FormFieldType.TEXT,
@@ -213,7 +348,6 @@ const formDataInput: FormPageInput[] = [
             description:
               "List any specific types of sessions or activities you'd be interested in attending during the event.",
             required: false,
-            validationRules: z.string().optional(),
           },
         ],
       },
@@ -232,7 +366,6 @@ const formDataInput: FormPageInput[] = [
               "If you have any other comments, suggestions, or specific requirements for the event, please mention them here.",
             placeholder: "E.g., Accessibility concerns, preferred time slots",
             required: true,
-            validationRules: z.string().optional(),
           },
         ],
       },
@@ -263,7 +396,22 @@ const generateFormPageMap = (formDataInput: FormPageInput[]): FormPageMap => {
         formPageMap[pageId].formGroups[groupId].formItems[itemId] = {
           id: itemId,
           ...item,
+          options: undefined,
         };
+
+        if (item.options) {
+          formPageMap[pageId].formGroups[groupId].formItems[itemId].options =
+            {};
+          item.options.forEach((option, optionIndex) => {
+            const optionId = `${itemId}-option${optionIndex + 1}`;
+            formPageMap[pageId].formGroups[groupId].formItems[itemId].options![
+              optionId
+            ] = {
+              id: optionId,
+              ...option,
+            };
+          });
+        }
       });
     });
   });
@@ -329,7 +477,7 @@ function createFormElements({
                   />
                 ) : item.fieldType === FormFieldType.CHECKBOX ? (
                   <div className="flex flex-col gap-2">
-                    {item.options!.map((option) => (
+                    {Object.values(item.options!).map((option) => (
                       <FormField
                         key={option.id}
                         control={form.control}
@@ -373,7 +521,7 @@ function createFormElements({
                     defaultValue={field.value}
                     className="flex flex-col gap-2"
                   >
-                    {item.options!.map((option) => (
+                    {Object.values(item.options!).map((option) => (
                       <FormItem
                         key={option.id}
                         className="flex flex-row items-start space-x-3 space-y-0"
@@ -407,7 +555,7 @@ function createFormElements({
                           >
                             <div className="flex gap-2 items-center">
                               {field.value
-                                ? item.options?.find(
+                                ? Object.values(item.options!).find(
                                     (option) => option.id === field.value
                                   )?.value
                                 : item.placeholder}
@@ -426,7 +574,14 @@ function createFormElements({
                         <CommandEmpty>No options found.</CommandEmpty>
                         <CommandGroup>
                           <CommandList>
-                            {item.options?.map((option) => (
+                            {[
+                              ...Object.values(item.options!),
+                              {
+                                id: "clear",
+                                value: "clear",
+                                label: "Clear",
+                              },
+                            ].map((option) => (
                               <CommandItem
                                 className="aria-selected:bg-onBackgroundEmPrimary text-onBackgroundSecondary aria-selected:text-onBackgroundPrimary data-[disabled]:opacity-100"
                                 value={option.value}
@@ -434,6 +589,9 @@ function createFormElements({
                                 onSelect={() => {
                                   console.log(item.id + option.id);
                                   form.setValue(item.id, option.id);
+
+                                  if (option.id === "clear")
+                                    form.resetField(item.id);
                                 }}
                               >
                                 <Check
@@ -512,7 +670,7 @@ function GeneratedForm({ data }: GeneratedFormProps) {
     Object.values(data).reduce((acc: { [id: string]: ZodSchema }, page) => {
       Object.values(page.formGroups).forEach((fg) => {
         Object.values(fg.formItems).forEach((fi) => {
-          acc[fi.id] = fi.validationRules;
+          acc[fi.id] = generateZodSchema(fi);
         });
       });
       return acc;
@@ -527,7 +685,7 @@ function GeneratedForm({ data }: GeneratedFormProps) {
       });
     });
     return acc;
-  }, {} as { [key: string]: string | string[] });
+  }, {} as { [key: string]: string | number | (string | number)[] });
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
