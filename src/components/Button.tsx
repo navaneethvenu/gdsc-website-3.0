@@ -17,6 +17,7 @@ export default function Button({
 }: ButtonProps) {
   return (
     <ButtonComponent
+      asChild={href !== undefined}
       className={`rounded-full ${
         variant === "primary" ? "bg-backgroundInversePrimary" : "bg-transparent"
       } ${
