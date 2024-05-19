@@ -36,6 +36,7 @@ import {
 import { cn } from "@/lib/utils";
 import { ChevronsUpDown, Check } from "lucide-react";
 import { CommandList } from "cmdk";
+import { Slider } from "@/components/ui/slider";
 
 enum FormFieldType {
   TEXT = "text",
@@ -45,6 +46,7 @@ enum FormFieldType {
   CHECKBOX = "checkbox",
   RADIO = "radio",
   DROPDOWN = "dropdown",
+  SLIDER = "slider",
 }
 
 interface FormItemInput {
@@ -58,6 +60,7 @@ interface FormItemInput {
   options?: FormOptionInput[];
   min?: number;
   max?: number;
+  step?: number;
   validationRules?: {
     validator: (data: any) => any;
     params?: { message?: string; path?: (string | number)[]; params?: object };
@@ -127,6 +130,9 @@ function generateZodSchema(item: FormItem): ZodSchema {
     case FormFieldType.DROPDOWN:
       baseSchema = z.string();
       break;
+    case FormFieldType.SLIDER:
+      baseSchema = z.coerce.number();
+      break;
     default:
       throw new Error(`Unsupported field type: ${item.fieldType}`);
   }
@@ -191,28 +197,30 @@ function generateZodSchema(item: FormItem): ZodSchema {
   }
 
   if (item.fieldType === FormFieldType.EMAIL) {
-    baseSchema = (baseSchema as ZodString).email({
-      message: `${
-        item.nameOverride ?? item.name
-      } must be a valid email address.`,
-    });
+    if (item.required)
+      baseSchema = (baseSchema as ZodString).email({
+        message: `${
+          item.nameOverride ?? item.name
+        } must be a valid email address.`,
+      });
   }
 
   if (item.fieldType === FormFieldType.CHECKBOX) {
-    if (item.required)
+    if (item.required) {
       baseSchema = (baseSchema as ZodArray<ZodString>).min(1, {
         message: `You must choose at least one value.`,
       });
 
-    if (item.min && item.min !== undefined)
-      baseSchema = (baseSchema as ZodArray<ZodString>).min(item.min, {
-        message: `You must choose at least ${item.min} values.`,
-      });
+      if (item.min && item.min !== undefined)
+        baseSchema = (baseSchema as ZodArray<ZodString>).min(item.min, {
+          message: `You must choose at least ${item.min} values.`,
+        });
 
-    if (item.max && item.max !== undefined)
-      baseSchema = (baseSchema as ZodArray<ZodString>).max(item.max, {
-        message: `You can choose at most ${item.max} values.`,
-      });
+      if (item.max && item.max !== undefined)
+        baseSchema = (baseSchema as ZodArray<ZodString>).max(item.max, {
+          message: `You can choose at most ${item.max} values.`,
+        });
+    }
   }
 
   if (
@@ -225,7 +233,7 @@ function generateZodSchema(item: FormItem): ZodSchema {
       });
   }
 
-  if (item.validationRules) {
+  if (item.validationRules && item.required) {
     baseSchema = baseSchema.refine(
       item.validationRules.validator,
       item.validationRules.params
@@ -247,12 +255,14 @@ const formDataInput: FormPageInput[] = [
         name: "Interests and Expertise",
         formItems: [
           {
-            fieldType: FormFieldType.NUMBER,
+            fieldType: FormFieldType.SLIDER,
             name: "Areas of Interest",
             description:
               "Enter the fields or areas you're interested in (e.g., Web Development, Machine Learning, Cybersecurity, etc.).",
             placeholder: "E.g., Web Development, Data Science",
-            max: 4,
+            max: 6,
+            min: 2,
+            step: 2,
             // defaultValue: 1,
             required: false,
           },
@@ -261,7 +271,7 @@ const formDataInput: FormPageInput[] = [
             name: "Programming Email",
             placeholder: "E.g., Python, Java, JavaScript",
             description: "List any programming languages you're familiar with.",
-            required: true,
+            required: false,
             validationRules: {
               validator: (value) => value.endsWith("gmail.com"),
               params: {
@@ -278,7 +288,7 @@ const formDataInput: FormPageInput[] = [
             fieldType: FormFieldType.CHECKBOX,
             name: "Choose Areas of Interest",
             placeholder: "E.g., Web Development, Data Science",
-            required: true,
+            required: false,
             min: 2,
             max: 2,
             options: [
@@ -307,7 +317,7 @@ const formDataInput: FormPageInput[] = [
             name: "Choose Areas of Interest",
             nameOverride: "Areas of Interest",
             placeholder: "E.g., Web Development, Data Science",
-            required: true,
+            required: false,
             options: [
               {
                 value: "Web Development",
@@ -338,7 +348,7 @@ const formDataInput: FormPageInput[] = [
               "What are your expectations from the 'Le Debut' freshers event? What would you like to learn or explore?",
             placeholder:
               "E.g., Learn about different career paths, network with industry professionals",
-            required: true,
+            required: false,
             max: 12,
           },
           {
@@ -365,7 +375,7 @@ const formDataInput: FormPageInput[] = [
             description:
               "If you have any other comments, suggestions, or specific requirements for the event, please mention them here.",
             placeholder: "E.g., Accessibility concerns, preferred time slots",
-            required: true,
+            required: false,
           },
         ],
       },
@@ -430,6 +440,12 @@ interface createFormElementsProps {
   currentPage: number;
   data: FormPageMap;
 }
+
+const arrayRange = (start: number, stop: number, step: number) =>
+  Array.from(
+    { length: (stop - start) / step + 1 },
+    (value, index) => start + index * step
+  );
 
 function createFormElements({
   form,
@@ -612,6 +628,27 @@ function createFormElements({
                       </Command>
                     </PopoverContent>
                   </Popover>
+                ) : item.fieldType === FormFieldType.SLIDER ? (
+                  <div className="flex flex-col gap-4">
+                    <Slider
+                      defaultValue={[field.value]}
+                      onValueChange={(vals) => {
+                        form.setValue(item.id, vals);
+                      }}
+                      min={item.min ?? 0}
+                      max={item.max}
+                      step={item.step ?? 1}
+                    ></Slider>
+                    <div className="flex justify-between text-onBackgroundTertiary">
+                      {arrayRange(item.min ?? 0, item.max!, item.step ?? 1).map(
+                        (marker, markerIndex) => (
+                          <BodySmall key={markerIndex}>{marker}</BodySmall>
+                        )
+                      )}
+                      {/* <BodySmall>{item.min ?? 0}</BodySmall>
+                      <BodySmall>{item.max}</BodySmall> */}
+                    </div>
+                  </div>
                 ) : (
                   <Input
                     autoComplete="on"
