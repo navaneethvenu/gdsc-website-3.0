@@ -24,7 +24,7 @@ const Heading1 = styled.h2`
 `;
 
 const Heading2 = styled.h3`
-  font-size: 32px;
+  font-size:  32px;
   font-weight: 500;
   line-height: 1.1;
   letter-spacing: -0.02em;
