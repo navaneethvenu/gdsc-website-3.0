@@ -35,13 +35,3 @@ export default function TeamCard({ teammember }: TeamCardProps) {
     </div>
   );
 }
-
-//  teamCardPage() {
-//   return (
-//     <div className="grid grid-cols-3">
-//       {contributions.map((contribution, index) => (
-//         <TeamCard key={index} name={contribution.contributor.name} />
-//       ))}
-//     </div>
-//   );
-// }
