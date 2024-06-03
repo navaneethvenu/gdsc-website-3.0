@@ -3,7 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import { Body, BodySmall, Heading3 } from "./type-styles";
-import SocialRow from "@/app/contributors/components/social-row";
+import SocialRow from "@/components/social-row";
 
 import Link from "next/link";
 import { useTheme } from "next-themes";

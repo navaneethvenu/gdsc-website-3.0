@@ -2,7 +2,7 @@
 
 import teamMember from "@/models/team-members";
 import Image from "next/image";
-import SocialRow from "./social-row";
+import SocialRow from "@/components/social-row";
 
 
 interface TeamCardProps {
