@@ -51,36 +51,32 @@ export default function About() {
 
   return (
     <div className="bg-backgroundPrimary flex flex-col overflow-x-hidden border-b border-borderPrimary">
-      <div className="relative bg-backgroundEmPrimary bg-center bg-no-repeat bg-cover pt-8 !pb-20 min-h-[50vh] justify-center overflow-hidden">
-        <div className="text-center col-start-1 md:col-start-2 col-end-5 md:col-end-8 lg:col-end-12 flex flex-col gap-8 items-center justify-center p-6 lg:p-16">
-          <div className="flex flex-col gap-6 items-center">
-            <Heading3 className="text-onBackgroundSecondary w-full">
-              Who we are
-            </Heading3>
-            <Title className="w-full md:w-[75%] lg:w-[75%]">
-              Since our inception in 2019, we’ve been helping students keep
-              their heads in the clouds ... while having their feet on the
-              ground.
-            </Title>
-          </div>
-        </div>
-        {typeof window !== "undefined" && resultantTheme === "light" && (
-          <Image
-            className="w-lvw max-w-[100vw] absolute bottom-[-75px] left-0 right-0"
-            src={CloudBottomImage}
-            alt="Light theme cloud image"
-            layout="fill"
-          />
-        )}
-        {typeof window !== "undefined" && resultantTheme === "dark" && (
-          <Image
-            className="w-lvw max-w-[100vw] absolute bottom-[-75px] left-0 right-0"
-            src={CloudBottomImageDark}
-            alt="Dark theme cloud image"
-            layout="fill"
-          />
-        )}
-      </div>
+      <div className="relative bg-backgroundEmPrimary bg-center bg-no-repeat bg-cover pt-8 pb-32 md:pb-40 min-h-[50vh] flex flex-col justify-center overflow-hidden">
+  <div className="text-center flex flex-col gap-8 items-center justify-center p-6 lg:p-16 z-10">
+    <div className="flex flex-col gap-6 items-center max-w-4xl mx-auto">
+      <Heading3 className="text-onBackgroundSecondary w-full">
+        Who we are
+      </Heading3>
+      <Title className="w-full">
+        Since our inception in 2019, we&apos;ve been helping students keep
+        their heads in the clouds ... while having their feet on the
+        ground.
+      </Title>
+    </div>
+  </div>
+  {typeof window !== "undefined" && (
+    <div className="absolute bottom-0 left-0 right-0 w-full">
+      <Image
+        className="w-full h-auto object-cover object-top"
+        src={resultantTheme === "light" ? CloudBottomImage : CloudBottomImageDark}
+        alt={`${resultantTheme === "light" ? "Light" : "Dark"} theme cloud image`}
+        layout="responsive"
+        width={1920}
+        height={200}
+      />
+    </div>
+  )}
+</div>
 
       <div className="relative bg-center bg-no-repeat bg-cover p-10 lg:p-32 !pb-0 min-h-[50vh] justify-center">
         <div className="text-center flex flex-col gap-8 items-center justify-center -mt-28 lg:-mt-48">
