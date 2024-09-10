@@ -3,34 +3,74 @@
 import teamMember from "@/models/team-members";
 import Image from "next/image";
 import SocialRow from "@/components/social-row";
-
+import { Body, BodyLarge, BodySmall } from "@/components/type-styles";
 
 interface TeamCardProps {
   teammember: teamMember;
 }
 
-export default function TeamCard({ teammember }: TeamCardProps) {
-  return (
-    <div className="flex flex-col w-full max-w-sm rounded-lg border border-gray-200 bg-white shadow">
-      <div className="flex flex-col justify-center m-8">
-        <Image
-          className="mb-4 h-24 w-24 rounded-full bg-[#E3F2FD] pt-2 shadow-lg"
-          src={teammember.imageURL}
-          alt={`${teammember.name} image`} // Dynamic alt text
-          width={96}
-          height={96}
-        />
-        <h5 className="mb-1 text-xl font-medium text-gray-900">{teammember.name}</h5>
-        <span className="text-sm text-gray-500">Visual Designer</span>
-        <div className="mt-4 flex md:mt-6">
-          <p className="inline-flex items-center rounded-lg border-2 border-[#BBDEFB] bg-[#E3F2FD] px-4 py-2 text-center text-sm font-medium text-black">
-            Design Team
-          </p>
-        </div>
-      </div>
+const getTeamStyles = (team: string): { avatar: string; border: string; badge: string } => {
+  const styleMap: { [key: string]: { avatar: string; border: string; badge: string } } = {
+    "Operations Team": {
+      avatar: "bg-backgroundEmPrimary",
+      border: "border-borderEmPrimary",
+      badge: "bg-backgroundEmPrimary",
+    },
+    "Technical Team": {
+      avatar: "bg-backgroundEmSecondary",
+      border: "border-borderEmSecondary",
+      badge: "bg-backgroundEmSecondary",
+    },
+    "Design Team": {
+      avatar: "bg-backgroundEmTertiary",
+      border: "border-borderEmTertiary",
+      badge: "bg-backgroundEmTertiary",
+    },
+    "Social Media Team": {
+      avatar: "bg-backgroundEmQuaternary",
+      border: "border-borderSecondary",
+      badge: "bg-backgroundEmQuaternary",
+    },
+    "All Teams": {
+      avatar: "bg-backgroundNeutralPrimary",
+      border: "border-borderSecondary",
+      badge: "bg-backgroundNeutralPrimary",
+    },
+  };
+  return styleMap[team] || styleMap["Technical Team"]; // Default to Technical Team if not found
+};
 
-      <div className="flex m-8 gap-6">
-      <SocialRow socials={teammember.socials}></SocialRow>
+export default function TeamCard({ teammember }: TeamCardProps) {
+  const teamStyles = getTeamStyles(teammember.team);
+
+  return (
+    <div className="bg-surfacePrimary border-solid border-[1px] border-borderPrimary rounded-lg p-8 pb-6 flex flex-col w-full">
+      <div className="flex flex-col gap-8">
+        <div
+          className={`${teamStyles.avatar} h-20 w-20 md:rounded-full grow-0 shrink-0 overflow-hidden`}
+        >
+          <Image
+            src={teammember.imageURL}
+            alt={`${teammember.name}'s profile picture`}
+            width={80}
+            height={80}
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-col">
+            <BodyLarge className="!text-[18px] lg:!text-[20px] !font-medium">{teammember.name}</BodyLarge>
+            <Body className="text-onBackgroundTertiary">{teammember.role}</Body>
+          </div>
+          <div>
+            <BodySmall className={`rounded-lg border ${teamStyles.badge} text-onBackgroundSecondary flex w-fit items-center gap-2 py-2 px-3`}>
+              {teammember.team}
+            </BodySmall>
+          </div>
+        </div>
+        <div className="pt-6">
+          <SocialRow socials={teammember.socials} />
+        </div>
       </div>
     </div>
   );

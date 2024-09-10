@@ -12,19 +12,36 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
+} from "@/components/ui/popover";
 import TeamCard from "./components/team-card";
 import { tenureList } from "@/data/team-members";
 import CloudBottomImage from "@/../public/assets/images/clouds-bottom.png";
 import CloudBottomImageDark from "@/../public/assets/images/clouds-bottom-dark.png";
 import Image from "next/image";
 import { useTheme } from "next-themes";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import teamMember from "@/models/team-members";
+
+const useCheckMobileScreen = () => {
+  const [width, setWidth] = useState(window.innerWidth);
+  const handleWindowSizeChange = () => {
+    setWidth(window.innerWidth);
+  };
+
+  useEffect(() => {
+    window.addEventListener("resize", handleWindowSizeChange);
+    return () => {
+      window.removeEventListener("resize", handleWindowSizeChange);
+    };
+  }, []);
+
+  return width <= 768;
+};
 
 export default function About() {
   const { systemTheme, theme } = useTheme();
   const resultantTheme = theme === "system" ? systemTheme : theme;
+  const isMobileView = useCheckMobileScreen();
 
   return (
     <div className="bg-backgroundPrimary flex flex-col overflow-x-hidden border-b border-borderPrimary">
@@ -121,17 +138,21 @@ export default function About() {
           </BodyLarge>
         </div>
 
-        <div className="bg-backgroundSecondary p-4 rounded-lg">
+        <div className="rounded-lg">
           <OverflowingTabs
-              tabs={Object.keys(tenureList)}
-              tabLimit={5}
-              tabContent={(currentTab) => {
-                const data = tenureList[currentTab]
+            tabs={Object.keys(tenureList)}
+            tabLimit={isMobileView ? 2 : 5}
+            tabContent={(currentTab) => {
+              const data = tenureList[currentTab];
 
-                return (
-                  <TenureEntry title={currentTab} description={data.description} members={data.teamMembers} />
-                )
-              }}
+              return (
+                <TenureEntry
+                  title={currentTab}
+                  description={data.description}
+                  members={data.teamMembers}
+                />
+              );
+            }}
           />
         </div>
       </div>
@@ -140,93 +161,104 @@ export default function About() {
 }
 
 interface OverflowingTabsProps {
-  tabs: string[],
-  tabLimit?: number,
-  tabContent: (currentTab: string) => JSX.Element
+  tabs: string[];
+  tabLimit?: number;
+  tabContent: (currentTab: string) => JSX.Element;
 }
 
 function OverflowingTabs({ tabs, tabLimit, tabContent }: OverflowingTabsProps) {
-  const [currentTab, setCurrentTab] = useState(tabs[0])
+  const [currentTab, setCurrentTab] = useState(tabs[0]);
 
-  const currentTabLimit = useMemo(() => tabLimit ?? 5, [tabLimit])
-  
-  const tabsInTabBar = useMemo(() => tabs.slice(0, currentTabLimit), [tabs, currentTabLimit])
-  const overflowTabs = useMemo(() => tabs.slice(currentTabLimit), [tabs, currentTabLimit])
+  const currentTabLimit = useMemo(() => tabLimit ?? 5, [tabLimit]);
+
+  const tabsInTabBar = useMemo(
+    () => tabs.slice(0, currentTabLimit),
+    [tabs, currentTabLimit]
+  );
+  const overflowTabs = useMemo(
+    () => tabs.slice(currentTabLimit),
+    [tabs, currentTabLimit]
+  );
 
   return (
     <div>
       <div className="flex justify-end items-end">
         <ul className="flex gap-x-5">
           {tabsInTabBar.map((el, i) => (
-            <ol 
+            <ol
               className={
                 el !== currentTab
                   ? "px-5 py-1 rounded-t-md border-t border-x"
-                  : "px-5 py-1 rounded-t-md bg-[#fafafa] border-none"
+                  : "px-5 py-1 rounded-t-md bg-backgroundSecondary border-none"
               }
               key={i}
             >
-              <button onClick={() => setCurrentTab(el)}>{ el }</button>
+              <button onClick={() => setCurrentTab(el)}>{el}</button>
             </ol>
           ))}
-          {
-            overflowTabs.length === 0
-              ? (<></>)
-              : (
-                <Popover>
-                  <PopoverTrigger>
-                    <ol className="px-5 py-1 rounded-t-md border-t border-x flex items-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="17" viewBox="0 0 16 17" fill="none">
-                        <path d="M8.00008 2.5C7.26675 2.5 6.66675 3.1 6.66675 3.83333C6.66675 4.56667 7.26675 5.16667 8.00008 5.16667C8.73341 5.16667 9.33341 4.56667 9.33341 3.83333C9.33341 3.1 8.73341 2.5 8.00008 2.5ZM8.00008 11.8333C7.26675 11.8333 6.66675 12.4333 6.66675 13.1667C6.66675 13.9 7.26675 14.5 8.00008 14.5C8.73341 14.5 9.33341 13.9 9.33341 13.1667C9.33341 12.4333 8.73341 11.8333 8.00008 11.8333ZM8.00008 7.16667C7.26675 7.16667 6.66675 7.76667 6.66675 8.5C6.66675 9.23333 7.26675 9.83333 8.00008 9.83333C8.73341 9.83333 9.33341 9.23333 9.33341 8.5C9.33341 7.76667 8.73341 7.16667 8.00008 7.16667Z" fill="black"/>
-                      </svg>
+          {overflowTabs.length === 0 ? (
+            <></>
+          ) : (
+            <Popover>
+              <PopoverTrigger>
+                <ol className="px-5 py-1 rounded-t-md border-t border-x flex items-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="17"
+                    viewBox="0 0 16 17"
+                    fill="none"
+                  >
+                    <path
+                      d="M8.00008 2.5C7.26675 2.5 6.66675 3.1 6.66675 3.83333C6.66675 4.56667 7.26675 5.16667 8.00008 5.16667C8.73341 5.16667 9.33341 4.56667 9.33341 3.83333C9.33341 3.1 8.73341 2.5 8.00008 2.5ZM8.00008 11.8333C7.26675 11.8333 6.66675 12.4333 6.66675 13.1667C6.66675 13.9 7.26675 14.5 8.00008 14.5C8.73341 14.5 9.33341 13.9 9.33341 13.1667C9.33341 12.4333 8.73341 11.8333 8.00008 11.8333ZM8.00008 7.16667C7.26675 7.16667 6.66675 7.76667 6.66675 8.5C6.66675 9.23333 7.26675 9.83333 8.00008 9.83333C8.73341 9.83333 9.33341 9.23333 9.33341 8.5C9.33341 7.76667 8.73341 7.16667 8.00008 7.16667Z"
+                      fill="black"
+                    />
+                  </svg>
+                </ol>
+              </PopoverTrigger>
+              <PopoverContent>
+                <ul>
+                  {overflowTabs.map((e, i) => (
+                    <ol key={i}>
+                      <button
+                        className={
+                          e == currentTab
+                            ? "w-full text-left p-2 bg-[#e3f2fd]"
+                            : "w-full text-left p-2"
+                        }
+                        onClick={() => setCurrentTab(e)}
+                      >
+                        {e}
+                      </button>
                     </ol>
-                  </PopoverTrigger>
-                  <PopoverContent>
-                    <ul>
-                      {
-                        overflowTabs.map((e, i) => (
-                          <ol key={i}>
-                            <button
-                              className={
-                                e == currentTab
-                                  ? "w-full text-left p-2 bg-[#e3f2fd]"
-                                  : "w-full text-left p-2"
-                              }
-                              onClick={() => setCurrentTab(e)}
-                            >
-                              {e}
-                            </button>
-                          </ol>
-                        ))
-                      }
-                    </ul>
-                  </PopoverContent>
-                </Popover>
-              )
-          }
+                  ))}
+                </ul>
+              </PopoverContent>
+            </Popover>
+          )}
         </ul>
       </div>
-      <div className="bg-[#fafafa]">
-        {tabContent(currentTab)}
-      </div>
+      <div className="bg-[#fafafa]">{tabContent(currentTab)}</div>
     </div>
-  )
+  );
 }
 
 interface TenureEntryProps {
-  title: string,
-  description: string,
-  members: teamMember[]
+  title: string;
+  description: string;
+  members: teamMember[];
 }
 
 function TenureEntry({ title, description, members }: TenureEntryProps) {
   return (
     <div>
-      <div className="flex flex-col gap-2 lg:px-32 lg:py-24">
-        <Heading2>{ title }</Heading2>
-        <Body>{ description }</Body>
+      <div className="flex flex-col gap-6 py-16 px-4 md:py-24 md:px-32 bg-backgroundSecondary">
+        <div className="flex flex-col gap-2 text-onBackgroundSecondary">
+          <Heading2>{title}</Heading2>
+          <Body>{description}</Body>
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-3">
           {Object.entries(members).map(([key, teammember]) => (
             <TeamCard key={key} teammember={teammember} />
           ))}
