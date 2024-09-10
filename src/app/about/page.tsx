@@ -37,6 +37,12 @@ const useCheckMobileScreen = () => {
 
   return width <= 768;
 };
+const transformTenureTitle = (shortTitle: string): string => {
+  const [start, end] = shortTitle.split('-');
+  const startYear = parseInt(start) < 50 ? `20${start}` : `19${start}`;
+  const endYear = parseInt(end) < 50 ? `20${end}` : `19${end}`;
+  return `${startYear}-${endYear}`;
+};
 
 export default function About() {
   const { systemTheme, theme } = useTheme();
@@ -201,19 +207,24 @@ function OverflowingTabs({ tabs, tabLimit, tabContent }: OverflowingTabsProps) {
           ) : (
             <Popover>
               <PopoverTrigger>
-                <ol className="px-5 py-1 rounded-t-md border-t border-x flex items-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="17"
-                    viewBox="0 0 16 17"
-                    fill="none"
+                <ol className="group px-5 py-1 rounded-t-md border-t border-x border-borderPrimary flex items-center focus-within:border-onBackgroundPrimary">
+                  <button
+                    className="focus:outline-none"
+                    aria-label="More options"
                   >
-                    <path
-                      d="M8.00008 2.5C7.26675 2.5 6.66675 3.1 6.66675 3.83333C6.66675 4.56667 7.26675 5.16667 8.00008 5.16667C8.73341 5.16667 9.33341 4.56667 9.33341 3.83333C9.33341 3.1 8.73341 2.5 8.00008 2.5ZM8.00008 11.8333C7.26675 11.8333 6.66675 12.4333 6.66675 13.1667C6.66675 13.9 7.26675 14.5 8.00008 14.5C8.73341 14.5 9.33341 13.9 9.33341 13.1667C9.33341 12.4333 8.73341 11.8333 8.00008 11.8333ZM8.00008 7.16667C7.26675 7.16667 6.66675 7.76667 6.66675 8.5C6.66675 9.23333 7.26675 9.83333 8.00008 9.83333C8.73341 9.83333 9.33341 9.23333 9.33341 8.5C9.33341 7.76667 8.73341 7.16667 8.00008 7.16667Z"
-                      fill="black"
-                    />
-                  </svg>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="17"
+                      viewBox="0 0 16 17"
+                      className="transition-colors duration-200"
+                    >
+                      <path
+                        d="M8.00008 2.5C7.26675 2.5 6.66675 3.1 6.66675 3.83333C6.66675 4.56667 7.26675 5.16667 8.00008 5.16667C8.73341 5.16667 9.33341 4.56667 9.33341 3.83333C9.33341 3.1 8.73341 2.5 8.00008 2.5ZM8.00008 11.8333C7.26675 11.8333 6.66675 12.4333 6.66675 13.1667C6.66675 13.9 7.26675 14.5 8.00008 14.5C8.73341 14.5 9.33341 13.9 9.33341 13.1667C9.33341 12.4333 8.73341 11.8333 8.00008 11.8333ZM8.00008 7.16667C7.26675 7.16667 6.66675 7.76667 6.66675 8.5C6.66675 9.23333 7.26675 9.83333 8.00008 9.83333C8.73341 9.33333 9.33341 9.23333 9.33341 8.5C9.33341 7.76667 8.73341 7.16667 8.00008 7.16667Z"
+                        className="fill-onBackgroundPrimary group-focus-within:fill-onBackgroundEmPrimary"
+                      />
+                    </svg>
+                  </button>
                 </ol>
               </PopoverTrigger>
               <PopoverContent>
@@ -221,11 +232,16 @@ function OverflowingTabs({ tabs, tabLimit, tabContent }: OverflowingTabsProps) {
                   {overflowTabs.map((e, i) => (
                     <ol key={i}>
                       <button
-                        className={
-                          e == currentTab
-                            ? "w-full text-left p-2 bg-[#e3f2fd]"
-                            : "w-full text-left p-2"
-                        }
+                        className={`
+              w-full text-left p-2 
+              transition-all duration-200
+              ${
+                e == currentTab
+                  ? "bg-backgroundSecondary text-onBackgroundPrimary"
+                  : "hover:bg-backgroundSecondary hover:text-onBackgroundPrimary"
+              }
+              focus:outline-none focus:border-1 focus:border-onBackgroundPrimary
+            `}
                         onClick={() => setCurrentTab(e)}
                       >
                         {e}
@@ -238,7 +254,7 @@ function OverflowingTabs({ tabs, tabLimit, tabContent }: OverflowingTabsProps) {
           )}
         </ul>
       </div>
-      <div className="bg-[#fafafa]">{tabContent(currentTab)}</div>
+      <div className="bg-backgroundPrimary">{tabContent(currentTab)}</div>
     </div>
   );
 }
@@ -250,11 +266,13 @@ interface TenureEntryProps {
 }
 
 function TenureEntry({ title, description, members }: TenureEntryProps) {
+  const transformedTitle = transformTenureTitle(title);
+
   return (
     <div>
       <div className="flex flex-col gap-6 py-16 px-4 md:py-24 md:px-32 bg-backgroundSecondary">
         <div className="flex flex-col gap-2 text-onBackgroundSecondary">
-          <Heading2>{title}</Heading2>
+          <Heading2>{transformedTitle}</Heading2>
           <Body>{description}</Body>
         </div>
 

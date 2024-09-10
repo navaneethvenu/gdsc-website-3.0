@@ -47,7 +47,7 @@ export default function TeamCard({ teammember }: TeamCardProps) {
     <div className="bg-surfacePrimary border-solid border-[1px] border-borderPrimary rounded-lg p-8 pb-6 flex flex-col w-full">
       <div className="flex flex-col gap-8">
         <div
-          className={`${teamStyles.avatar} h-20 w-20 md:rounded-full grow-0 shrink-0 overflow-hidden`}
+          className={`${teamStyles.avatar} h-20 w-20 rounded-full grow-0 shrink-0 overflow-hidden`}
         >
           <Image
             src={teammember.imageURL}
