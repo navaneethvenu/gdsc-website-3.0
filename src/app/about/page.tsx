@@ -22,21 +22,6 @@ import { useTheme } from "next-themes";
 import { useEffect, useMemo, useState } from "react";
 import teamMember from "@/models/team-members";
 
-const useCheckMobileScreen = () => {
-  const [width, setWidth] = useState(window.innerWidth);
-  const handleWindowSizeChange = () => {
-    setWidth(window.innerWidth);
-  };
-
-  useEffect(() => {
-    window.addEventListener("resize", handleWindowSizeChange);
-    return () => {
-      window.removeEventListener("resize", handleWindowSizeChange);
-    };
-  }, []);
-
-  return width <= 768;
-};
 const transformTenureTitle = (shortTitle: string): string => {
   const [start, end] = shortTitle.split('-');
   const startYear = parseInt(start) < 50 ? `20${start}` : `19${start}`;
@@ -47,36 +32,49 @@ const transformTenureTitle = (shortTitle: string): string => {
 export default function About() {
   const { systemTheme, theme } = useTheme();
   const resultantTheme = theme === "system" ? systemTheme : theme;
-  const isMobileView = useCheckMobileScreen();
+  const [isMobileView, setIsMobileView] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const checkMobileScreen = () => {
+      setIsMobileView(window.innerWidth <= 768);
+    };
+
+    checkMobileScreen();
+    window.addEventListener('resize', checkMobileScreen);
+    setMounted(true);
+
+    return () => window.removeEventListener('resize', checkMobileScreen);
+  }, []);
 
   return (
     <div className="bg-backgroundPrimary flex flex-col overflow-x-hidden border-b border-borderPrimary">
       <div className="relative bg-backgroundEmPrimary bg-center bg-no-repeat bg-cover pt-8 pb-32 md:pb-40 min-h-[50vh] flex flex-col justify-center overflow-hidden">
-  <div className="text-center flex flex-col gap-8 items-center justify-center p-6 lg:p-16 z-10">
-    <div className="flex flex-col gap-6 items-center max-w-4xl mx-auto">
-      <Heading3 className="text-onBackgroundSecondary w-full">
-        Who we are
-      </Heading3>
-      <Title className="w-full">
-        Since our inception in 2019, we&apos;ve been helping students keep
-        their heads in the clouds ... while having their feet on the
-        ground.
-      </Title>
-    </div>
-  </div>
-  {typeof window !== "undefined" && (
-    <div className="absolute bottom-0 left-0 right-0 w-full">
-      <Image
-        className="w-full h-auto object-cover object-top"
-        src={resultantTheme === "light" ? CloudBottomImage : CloudBottomImageDark}
-        alt={`${resultantTheme === "light" ? "Light" : "Dark"} theme cloud image`}
-        layout="responsive"
-        width={1920}
-        height={200}
-      />
-    </div>
-  )}
-</div>
+        <div className="text-center flex flex-col gap-8 items-center justify-center p-6 lg:p-16 z-10">
+          <div className="flex flex-col gap-6 items-center max-w-4xl mx-auto">
+            <Heading3 className="text-onBackgroundSecondary w-full">
+              Who we are
+            </Heading3>
+            <Title className="w-full">
+              Since our inception in 2019, we&apos;ve been helping students keep
+              their heads in the clouds ... while having their feet on the
+              ground.
+            </Title>
+          </div>
+        </div>
+        {mounted && (
+          <div className="absolute bottom-0 left-0 right-0 w-full">
+            <Image
+              className="w-full h-auto object-cover object-top"
+              src={resultantTheme === "light" ? CloudBottomImage : CloudBottomImageDark}
+              alt={`${resultantTheme === "light" ? "Light" : "Dark"} theme cloud image`}
+              layout="responsive"
+              width={1920}
+              height={200}
+            />
+          </div>
+        )}
+      </div>
 
       <div className="relative bg-center bg-no-repeat bg-cover p-10 lg:p-32 !pb-0 min-h-[50vh] justify-center">
         <div className="text-center flex flex-col gap-8 items-center justify-center -mt-28 lg:-mt-48">
@@ -107,7 +105,7 @@ export default function About() {
                 About GDSC MBCET
               </Heading2>
               <BodyLarge className="w-full text-onBackgroundSecondary">
-                GDSC MBCET’s legacy is one of bold thinking, creative
+                GDSC MBCET&rsquo;s legacy is one of bold thinking, creative
                 excellence, and profound impact. Our members are creative
                 powerhouses who have made groundbreaking contributions to our
                 community and the way it runs.
@@ -122,7 +120,7 @@ export default function About() {
                 <br />
                 <br />
                 This spirit of innovation and collaboration has guided us since
-                2019, and we’re excited to see where it takes us in the years
+                2019, and we&rsquo;re excited to see where it takes us in the years
                 and decades to come.
               </BodyLarge>
             </div>
