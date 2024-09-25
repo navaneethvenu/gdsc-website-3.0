@@ -9,12 +9,16 @@ interface TeamCardProps {
   teammember: teamMember;
 }
 
-const getTeamStyles = (team: string): { avatar: string; border: string; badge: string } => {
-  const styleMap: { [key: string]: { avatar: string; border: string; badge: string } } = {
+const getTeamStyles = (
+  team: string
+): { avatar: string; border: string; badge: string } => {
+  const styleMap: {
+    [key: string]: { avatar: string; border: string; badge: string };
+  } = {
     "Operations Team": {
-      avatar: "bg-backgroundEmPrimary",
-      border: "border-borderEmPrimary",
-      badge: "bg-backgroundEmPrimary",
+      avatar: "bg-backgroundEmTertiary",
+      border: "border-borderEmTertiary",
+      badge: "bg-backgroundEmTertiary",
     },
     "Technical Team": {
       avatar: "bg-backgroundEmSecondary",
@@ -22,9 +26,9 @@ const getTeamStyles = (team: string): { avatar: string; border: string; badge: s
       badge: "bg-backgroundEmSecondary",
     },
     "Design Team": {
-      avatar: "bg-backgroundEmTertiary",
-      border: "border-borderEmTertiary",
-      badge: "bg-backgroundEmTertiary",
+      avatar: "bg-backgroundEmPrimary",
+      border: "border-borderEmPrimary",
+      badge: "bg-backgroundEmPrimary",
     },
     "Social Media Team": {
       avatar: "bg-backgroundEmQuaternary",
@@ -32,9 +36,9 @@ const getTeamStyles = (team: string): { avatar: string; border: string; badge: s
       badge: "bg-backgroundEmQuaternary",
     },
     "All Teams": {
-      avatar: "bg-backgroundNeutralPrimary",
+      avatar: "bg-backgroundEmTertiary",
       border: "border-borderSecondary",
-      badge: "bg-backgroundNeutralPrimary",
+      badge: "bg-backgroundPrimary",
     },
   };
   return styleMap[team] || styleMap["Technical Team"]; // Default to Technical Team if not found
@@ -58,12 +62,16 @@ export default function TeamCard({ teammember }: TeamCardProps) {
           />
         </div>
         <div className="flex flex-col gap-5">
-          <div className="flex flex-col">
-            <BodyLarge className="!text-[18px] lg:!text-[20px] !font-medium">{teammember.name}</BodyLarge>
+          <div className="flex flex-col items-start text-left">
+            <BodyLarge className="!text-[18px] lg:!text-[20px] !font-medium">
+              {teammember.name}
+            </BodyLarge>
             <Body className="text-onBackgroundTertiary">{teammember.role}</Body>
           </div>
           <div>
-            <BodySmall className={`rounded-lg border ${teamStyles.badge} text-onBackgroundSecondary flex w-fit items-center gap-2 py-2 px-3`}>
+            <BodySmall
+              className={`rounded-lg border ${teamStyles.badge} ${teamStyles.border} text-onBackgroundSecondary flex w-fit items-center gap-2 py-2 px-3`}
+            >
               {teammember.team}
             </BodySmall>
           </div>
