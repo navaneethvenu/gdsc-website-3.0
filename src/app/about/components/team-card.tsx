@@ -38,7 +38,7 @@ const getTeamStyles = (
     "All Teams": {
       avatar: "bg-backgroundEmTertiary",
       border: "border-borderSecondary",
-      badge: "bg-backgroundPrimary",
+      badge: "bg-transparent",
     },
   };
   return styleMap[team] || styleMap["Technical Team"]; // Default to Technical Team if not found
