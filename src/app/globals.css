@@ -194,6 +194,7 @@
     --border-em-primary: var(--darkblue-700);
     --border-em-secondary: var(--darkgreen-700);
     --border-em-tertiary: var(--darkyellow-700);
+    --border-em-quaternary: var(--darkred-700);
 
     --illo-surface-primary: var(--darkblue-700);
 
