@@ -32,7 +32,7 @@ const getTeamStyles = (
     },
     "Social Media Team": {
       avatar: "bg-backgroundEmQuaternary",
-      border: "border-borderSecondary",
+      border: "border-borderEmQuaternary",
       badge: "bg-backgroundEmQuaternary",
     },
     "All Teams": {
