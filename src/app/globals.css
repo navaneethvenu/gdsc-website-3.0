@@ -119,6 +119,7 @@
     --border-em-primary: var(--primary-200-blue);
     --border-em-secondary: var(--primary-200-green);
     --border-em-tertiary: var(--primary-200-yellow);
+    --border-em-quaternary: var(--primary-200-red);
 
     --illo-surface-primary: var(--neutralcore-white);
 
