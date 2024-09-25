@@ -38,20 +38,16 @@ const Heading3 = styled.h4`
 `;
 
 const BodyLarge = styled.p`
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 400;
   line-height: 1.4;
   letter-spacing: -0.02em;
-
-  @media ${device.sm} {
-    font-size: 20px;
-  }
 `;
 
 const Body = styled.p`
   font-size: 16px;
   font-weight: 400;
-  line-height: 1.6;
+  line-height: 1.5;
   letter-spacing: -0.02em;
 `;
 

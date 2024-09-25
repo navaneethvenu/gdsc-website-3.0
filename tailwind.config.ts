@@ -24,8 +24,6 @@ const safeList = [
   "hover:outline-borderEmSecondary",
   "hover:outline-borderEmTertiary",
   "hover:outline-borderSecondary",
-  
-  
 ];
 
 const config = {
@@ -68,7 +66,7 @@ const config = {
         backgroundEmTertiary: "var(--background-em-tertiary)",
         backgroundEmQuaternary: "var(--background-em-quaternary)",
 
-        backgroundNeutralPrimary : "var(--background-neutral-primary)",
+        backgroundNeutralPrimary: "var(--background-neutral-primary)",
 
         backgroundInversePrimary: "var(--background-inverse-primary)",
 
@@ -79,12 +77,13 @@ const config = {
         onBackgroundInversePrimary: "var(--on-background-inverse-primary)",
         onBackgroundInverseSecondary: "var(--on-background-inverse-secondary)",
 
-        borderPrimary : "var(--border-primary)",
-        borderSecondary : "var(--border-secondary)",
+        borderPrimary: "var(--border-primary)",
+        borderSecondary: "var(--border-secondary)",
 
-        borderEmPrimary : "var(--border-em-primary)",
-        borderEmSecondary : "var(--border-em-secondary)",
-        borderEmTertiary : "var(--border-em-tertiary)",
+        borderEmPrimary: "var(--border-em-primary)",
+        borderEmSecondary: "var(--border-em-secondary)",
+        borderEmTertiary: "var(--border-em-tertiary)",
+        borderEmQuaternary: "var(--border-em-quaternary)",
 
         illoSurfacePrimary: "var(--illo-surface-primary)",
 
@@ -142,12 +141,10 @@ const config = {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
-      backgroundImage:{
-        'clouds':"url('/images/clouds.svg')"
+      backgroundImage: {
+        clouds: "url('/images/clouds.svg')",
       },
-      backgroundPosition:{
-
-      }
+      backgroundPosition: {},
     },
   },
   safelist: safeList,

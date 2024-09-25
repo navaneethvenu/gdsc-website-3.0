@@ -64,6 +64,10 @@
     --darkgrey-950: #121212;
     --darkgrey-600: #36435a;
 
+    --darkred-900: #491410;
+    --darkred-800: #4e1511;
+    --darkred-700: #621b16;
+
     --darkblue-900: #0a2d49;
     --darkblue-800: #0d3c61;
     --darkblue-700: #0d3c61;
@@ -115,6 +119,7 @@
     --border-em-primary: var(--primary-200-blue);
     --border-em-secondary: var(--primary-200-green);
     --border-em-tertiary: var(--primary-200-yellow);
+    --border-em-quaternary: var(--primary-200-red);
 
     --illo-surface-primary: var(--neutralcore-white);
 
@@ -171,7 +176,7 @@
     --background-em-primary: var(--darkblue-900);
     --background-em-secondary: var(--darkgreen-900);
     --background-em-tertiary: var(--darkyellow-900);
-    --background-em-quaternary: var(--primary-300-red);
+    --background-em-quaternary: var(--darkred-900);
 
     --background-neutral-primary: var(--darkgrey-800);
 
@@ -190,6 +195,7 @@
     --border-em-primary: var(--darkblue-700);
     --border-em-secondary: var(--darkgreen-700);
     --border-em-tertiary: var(--darkyellow-700);
+    --border-em-quaternary: var(--darkred-700);
 
     --illo-surface-primary: var(--darkblue-700);
 

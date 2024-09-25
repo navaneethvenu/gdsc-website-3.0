@@ -7,7 +7,7 @@ import LinkedinIcon from "@/../public/assets/icons/linkedin-logo.svg";
 import dateToElapsed from "@/utils/date-to-elapsed";
 import Contribution from "@/models/contributions";
 import ProfileImage from "@/../public/assets/images/team-photos/bengeorgenetto.png";
-import SocialRow from "./social-row";
+import SocialRow from "@/components/social-row";
 
 type GithubCardProps = {
   contribution: Contribution;
