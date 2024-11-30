@@ -82,10 +82,7 @@ const Navbar = ({ isCol = false, className }: NavbarProps) => {
           !isCol ? "" : "flex-col w-full"
         }  justify-center items-center gap-2`}
       >
-        <Button className={`${isCol ? "w-full" : ""}`} variant="secondary">
-          Sign In
-        </Button>
-        <Button className={`${isCol ? "w-full" : ""}`}>Join us</Button>
+        <Button className={`${isCol ? "w-full" : ""}`}>Become a member</Button>
       </div>
     </div>
   );

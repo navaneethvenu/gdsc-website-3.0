@@ -37,10 +37,7 @@ export function SideBar({ className }: SideBarProps) {
         <div
           className={`buttonContainer flex flex-col w-full justify-center items-center gap-2`}
         >
-          <Button className={"w-full"} variant="secondary">
-            Sign In
-          </Button>
-          <Button className={"w-full"}>Join us</Button>
+          <Button className={"w-full"}>Become a member</Button>
         </div>
       </SheetContent>
     </Sheet>
