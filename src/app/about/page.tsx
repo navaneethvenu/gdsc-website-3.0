@@ -22,6 +22,7 @@ import { useTheme } from "next-themes";
 import { useEffect, useMemo, useState } from "react";
 import teamMember from "@/models/team-members";
 import { ArrowUpRight, MoreVertical } from "lucide-react";
+import Papa from "papaparse";
 
 const transformTenureTitle = (shortTitle: string): string => {
   const [start, end] = shortTitle.split("-");
@@ -30,11 +31,43 @@ const transformTenureTitle = (shortTitle: string): string => {
   return `Tenure ${startYear.substring(2, 4)}-${endYear.substring(2, 4)}`;
 };
 
+type MemberInfo = {
+  MemberID: string; // Unique identifier for the member.
+  coreTenuresText: string; // Text representation of the tenures.
+  Name: string; // Name of the member.
+  CoreRoles: string | null; // List of roles, comma-separated.
+  CoreTeams: string | null;
+  Phone: string | null; // Phone number.
+  Branch: string; // Branch of study or organization.
+  EmailsString: string; // Comma-separated list of emails.
+  Twitter: string | undefined; // URL to Twitter profile.
+  LinkedIn: string | undefined; // URL to LinkedIn profile.
+  GitHub: string | undefined; // URL to GitHub profile.
+  Instagram: string | undefined; // URL to Instagram profile.
+  Website: string | undefined; // Personal website URL.
+  Devfolio: string | undefined; // Devfolio profile URL.
+  Facebook: string | undefined; // Facebook profile URL.
+  Medium: string | undefined; // Medium profile URL.
+  Behance: string | undefined; // Behance profile URL.
+  Dribble: string | undefined; // Dribble profile URL.
+};
+
 export default function About() {
   const { systemTheme, theme } = useTheme();
   const resultantTheme = theme === "system" ? systemTheme : theme;
   const [isMobileView, setIsMobileView] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [teamData, setTeamData] = useState<MemberInfo[]>([]);
+
+  useEffect(() => {
+    fetch("data/team-members.csv")
+      .then((response) => response.text())
+      .then((csvText) => {
+        const parsedData = Papa.parse<MemberInfo>(csvText, { header: true });
+        setTeamData(parsedData.data); // Now TypeScript knows the correct type
+      })
+      .catch((error) => console.error("Error fetching CSV:", error));
+  }, []);
 
   useEffect(() => {
     const checkMobileScreen = () => {
@@ -47,6 +80,89 @@ export default function About() {
 
     return () => window.removeEventListener("resize", checkMobileScreen);
   }, []);
+
+  function convertCSVtoTeam(
+    teamData: MemberInfo[],
+    currentTab: string
+  ): teamMember[] {
+    const globalRolePriority = [
+      "GDSC Lead",
+      "DSC Lead",
+      "Community Lead",
+      "Community Mentor",
+      "Faculty In Charge",
+    ];
+
+    const teamPriority = [
+      "Organising Team",
+      "Design Team",
+      "Technical Team",
+      "Social Media Team",
+    ];
+
+    const members: teamMember[] = teamData
+      .filter((member) => member.coreTenuresText.includes(currentTab))
+      .map((member) => ({
+        name: member.Name,
+        team: member.CoreTeams!.split(",")[
+          member.coreTenuresText.split(",").indexOf(currentTab)
+        ],
+        imageURL: `/assets/images/team-photos/${member.MemberID}.png`,
+        role: member.CoreRoles!.split(",")[
+          member.coreTenuresText.split(",").indexOf(currentTab)
+        ],
+        socials: {
+          instagram: member.Instagram,
+          twitter: member.Twitter,
+          linkedin: member.LinkedIn,
+          devfolio: member.Devfolio,
+          website: member.Website,
+          facebook: member.Facebook,
+          medium: member.Medium,
+          github: member.GitHub,
+          behance: member.Behance,
+          dribbble: member.Dribble,
+        },
+      }))
+      .sort((a, b) => {
+        // Check if roles are in the global priority list
+        const isGlobalRoleA = globalRolePriority.includes(a.role);
+        const isGlobalRoleB = globalRolePriority.includes(b.role);
+
+        if (isGlobalRoleA && !isGlobalRoleB) return -1; // a takes priority
+        if (!isGlobalRoleA && isGlobalRoleB) return 1; // b takes priority
+
+        if (isGlobalRoleA && isGlobalRoleB) {
+          // If both are global roles, fallback to alphabetical sorting by name
+          if (a.role === b.role) return a.name.localeCompare(b.name);
+          else
+            return (
+              globalRolePriority.indexOf(a.role) -
+              globalRolePriority.indexOf(b.role)
+            );
+        }
+
+        // Compare based on team priority
+        const teamAIndex = teamPriority.indexOf(a.team);
+        const teamBIndex = teamPriority.indexOf(b.team);
+
+        if (teamAIndex !== teamBIndex) {
+          return teamAIndex - teamBIndex; // Sort by team priority
+        }
+
+        // Within the same team, prioritize roles ending in "Lead" or "Head"
+        const isALeadOrHead = /Lead$|Head$/.test(a.role);
+        const isBLeadOrHead = /Lead$|Head$/.test(b.role);
+
+        if (isALeadOrHead && !isBLeadOrHead) return -1; // a comes before b
+        if (!isALeadOrHead && isBLeadOrHead) return 1; // b comes before a
+
+        // If roles and teams are the same, sort alphabetically by name
+        return a.name.localeCompare(b.name);
+      });
+
+    return members;
+  }
 
   return (
     <div className="bg-backgroundPrimary flex flex-col overflow-x-hidden border-b border-borderPrimary">
@@ -160,12 +276,15 @@ export default function About() {
                 tabLimit={isMobileView ? 2 : 5}
                 tabContent={(currentTab) => {
                   const data = tenureList[currentTab];
-
+                  const members: teamMember[] = convertCSVtoTeam(
+                    teamData,
+                    currentTab
+                  );
                   return (
                     <TenureEntry
                       title={currentTab}
                       description={data.description}
-                      members={data.teamMembers}
+                      members={members}
                     />
                   );
                 }}
