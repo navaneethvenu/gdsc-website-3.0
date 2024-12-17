@@ -3,6 +3,8 @@ import LinkedinIcon from "@/../public/assets/icons/linkedin-logo.svg";
 import { Globe, InstagramLogo, TwitterLogo } from "@phosphor-icons/react";
 import GitHubLogo from "@/../public/assets/icons/github-logo.svg";
 import DiscordLogo from "@/../public/assets/icons/discord-logo.svg";
+import FacebookLogo from "@/../public/assets/icons/facebook-logo.svg";
+import MediumLogo from "@/../public/assets/icons/medium-logo.svg";
 import Socials from "@/models/firebase/socials";
 import { platform } from "os";
 
@@ -23,6 +25,7 @@ export default function SocialRow({ socials, grow = true }: SocialRowProps) {
       {Object.entries(socials).map(([platform, handle]) => {
         if (handle && handle.trim() !== "") {
           let baseURL = "";
+          let finalURL = "";
           Object.keys(SocialURLs).find((socialURLplatform) => {
             if (socialURLplatform.toLowerCase() === platform.toLowerCase()) {
               baseURL =
@@ -30,10 +33,17 @@ export default function SocialRow({ socials, grow = true }: SocialRowProps) {
             }
           });
 
+          if (handle.includes(baseURL.replace("https://", ""))) {
+            if (handle.includes("https://")) {
+              finalURL = handle;
+            } else finalURL = "https://" + handle;
+          } else {
+            finalURL = baseURL + handle;
+          }
           return (
             <SocialTile
               key={platform}
-              href={baseURL + handle}
+              href={finalURL}
               icon={getSocialIcon(
                 platform.toLowerCase(),
                 "text-onBackgroundSecondary" + hoverClass
@@ -60,11 +70,14 @@ function SocialTile({ href, icon }: SocialTileProps) {
 
 enum SocialURLs {
   Instagram = "https://instagram.com/",
-  Twitter = "https://twitter.com/",
+  Twitter = "https://x.com/",
   Discord = "https://discord.com/",
   Linkedin = "https://www.linkedin.com/in/",
   LinkedinCompany = "https://www.linkedin.com/company/",
+  Facebook = "https://www.facebook.com/",
+  Medium = "https://www.medium.com/@",
   Email = "mailto:",
+  Behance = "https://behance.com/",
   Github = "https://github.com/",
   Website = "https://",
 }
@@ -102,6 +115,20 @@ function getSocialIcon(platform: string, className: string): JSX.Element {
         ></LinkedinIcon>
       );
       break;
+    case "facebook":
+      icon = (
+        <FacebookLogo
+          className={className}
+          width={20}
+          height={20}
+        ></FacebookLogo>
+      );
+      break;
+    case "medium":
+      icon = (
+        <MediumLogo className={className} width={20} height={20}></MediumLogo>
+      );
+      break;
     case "discord":
       icon = (
         <DiscordLogo className={className} width={20} height={20}></DiscordLogo>
@@ -116,9 +143,9 @@ function getSocialIcon(platform: string, className: string): JSX.Element {
       icon = <Globe className={className} width={20} height={20}></Globe>;
       break;
     default:
-      <></>;
+      icon = <p>{platform.toUpperCase().substring(0, 1)}</p>;
       break;
   }
 
-  return icon!;
+  return icon;
 }
