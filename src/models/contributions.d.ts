@@ -1,4 +1,4 @@
-import Contributor from "./contributors";
+import Contributor from "./person-record";
 
 export default interface Contribution {
   contributor: Contributor;

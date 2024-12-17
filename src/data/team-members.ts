@@ -1,13 +1,14 @@
 import teamMember from "@/models/team-members";
 
 interface TenureEntry {
-  description: string,
-  teamMembers: teamMember[]
+  description: string;
+  teamMembers: teamMember[];
 }
 
 export const tenureList: Record<string, TenureEntry> = {
   "19-20": {
-    description: "The 2019-2020 team laid the foundation for our community's growth and impact, setting the stage for future innovations.",
+    description:
+      "The 2019-2020 team laid the foundation for our community's growth and impact, setting the stage for future innovations.",
     teamMembers: [
       {
         name: "Alex Johnson",
@@ -72,72 +73,204 @@ export const tenureList: Record<string, TenureEntry> = {
     ],
   },
   "20-21": {
-    description: "In 2020-2021, our team adapted to new challenges, expanding our online presence and creating innovative virtual events.",
+    description:
+      "In 2020-2021, our team adapted to new challenges, expanding our online presence and creating innovative virtual events.",
     teamMembers: [
       {
-        name: "Casey Zhang",
-        imageURL: "/assets/images/team-photos/bengeorgenetto.png",
+        name: "Jinu Baby",
+        imageURL: "/assets/images/team/faculty-in-charge/Jinu Baby.png",
+        role: "Faculty in Charge",
+        team: "All Teams",
+        socials: {
+          website: "mbcet.ac.in/faculty/mr-jinu-baby",
+          facebook: "jinus.bj",
+          //TODO: UPDATE SOCIAL WIDGET TO HANDLE FACEBOOK LINKS
+        },
+      },
+
+      {
+        name: "Advaith U",
+        imageURL: "/assets/images/team/2020-2021/Advaith U.png",
         role: "Community Lead",
         team: "All Teams",
         socials: {
-          twitter: "casey_pm",
-          linkedin: "casey-zhang-pm",
-          instagram: "casey.pm",
-          website: "caseyzhang.pro",
+          medium: "advaithunni2000",
+          twitter: "advaith_unni",
+          linkedin: "advaithu",
+          discord: "iamadvaith#5749",
         },
       },
       {
-        name: "Riley Brown",
-        imageURL: "/assets/images/team-photos/bengeorgenetto.png",
-        role: "Frontend Developer",
+        name: "Aravind Venugopal",
+        imageURL: "/assets/images/team/2020-2021/Aravind.png",
+        role: "Community Mentor",
+        team: "All Teams",
+        socials: {
+          medium: "aravindvenugopal02",
+          twitter: "AravindV1444",
+          facebook: "aravind.venugopal.03",
+          linkedin: "aravind1444",
+        },
+      },
+      {
+        name: "Kesia Mary Joies",
+        imageURL: "/assets/images/team/2020-2021/kesia.png",
+        role: "Community Organizer",
+        team: "Organizing Team",
+        socials: {
+          linkedin: "kesia-joies",
+          discord: "Kesia#8707",
+        },
+      },
+      {
+        name: "M Aswin Kishore",
+        imageURL: "/assets/images/team/2020-2021/aswin.png",
+        role: "Community Organizer",
+        team: "Organizing Team",
+        socials: {
+          linkedin: "maswinkishore",
+          discord: "mak#6604",
+          github: "https://github.com/mak626",
+        },
+      },
+      {
+        name: "Roshni Roy",
+        imageURL: "/assets/images/team/2020-2021/roshni.png",
+        role: "Community Organizer",
+        team: "Organizing Team",
+        socials: {
+          linkedin: "roshni-roy-7291a21b5",
+        },
+      },
+      {
+        name: "Meenakshy Sunil",
+        imageURL: "/assets/images/team/2020-2021/meenakshi.png",
+        role: "Community Organizer",
+        team: "Organizing Team",
+        socials: {
+          linkedin: "meenakshy-sunil-7bb3b41b4",
+        },
+      },
+      {
+        name: "Riya P Mathew",
+        imageURL: "/assets/images/team/2020-2021/riya.png",
+        role: "AI/ML Lead",
         team: "Technical Team",
         socials: {
-          twitter: "riley_codes",
-          linkedin: "riley-brown-dev",
-          instagram: "riley.codes",
-          website: "rileybrown.dev",
+          linkedin: "riyapmathew",
+          discord: "Riya_Mathew_1120#6367",
+          github: "RiyaMathew-11",
+          instagram: "riya_mathew1111",
+          twitter: "riya_mathew_11",
         },
       },
       {
-        name: "Avery Martinez",
-        imageURL: "/assets/images/team-photos/bengeorgenetto.png",
-        role: "UX Researcher",
+        name: "Don Kora Jacob",
+        imageURL: "/assets/images/team/2020-2021/Don.PNG",
+        role: "Android Lead",
+        team: "Technical Team",
+        socials: {
+          facebook: "don.k.1004",
+          linkedin: "don-kora-jacob-70519a178",
+          discord: "don_k_jacob#4143",
+        },
+      },
+      {
+        name: "Mohammed Shahan",
+        imageURL: "/assets/images/team/2020-2021/Shahan.PNG",
+        role: "Design Lead",
         team: "Design Team",
         socials: {
-          twitter: "avery_ux",
-          linkedin: "avery-martinez-ux",
-          instagram: "avery.ux",
-          website: "averymartinez.design",
+          linkedin: "mohammed-shahan-b17b57150",
+          discord: "Mohammed Shahan#2735",
         },
       },
       {
-        name: "Skyler Wong",
-        imageURL: "/assets/images/team-photos/bengeorgenetto.png",
-        role: "Content Creator",
+        name: "Kevin Jacob",
+        imageURL: "/assets/images/team/2020-2021/kevin.png",
+        role: "Web Tech Lead",
+        team: "Technical Team",
+        socials: {
+          linkedin: "kevinjacob2001",
+          discord: "Kevinjacob²⁰⁰¹#3354",
+        },
+      },
+      {
+        name: "B S Meenakshy",
+        imageURL: "/assets/images/team/2020-2021/meenakshy.png",
+        role: "Social Media Manager",
         team: "Social Media Team",
         socials: {
-          twitter: "skyler_creates",
-          linkedin: "skyler-wong-content",
-          instagram: "skyler.creates",
-          website: "skylerwong.media",
+          facebook: "MeenakshyOfficial",
+          linkedin: "b-s-meenakshy-0010721a0",
         },
       },
       {
-        name: "Jamie Gupta",
-        imageURL: "/assets/images/team-photos/bengeorgenetto.png",
-        role: "Community Manager",
-        team: "Operations Team",
+        name: "Sanna Pramod",
+        imageURL: "/assets/images/team/2020-2021/sanna.png",
+        role: "Social Media Manager",
+        team: "Social Media Team",
         socials: {
-          twitter: "jamie_community",
-          linkedin: "jamie-gupta-community",
-          instagram: "jamie.community",
-          website: "jamiegupta.community",
+          linkedin: "sanna-pramod-2565b7187",
+          discord: "Sanna#2109",
+        },
+      },
+      {
+        name: "Salman Faariz",
+        imageURL: "/assets/images/team/2020-2021/salman.png",
+        role: "UI/UX Designer",
+        team: "Design Team",
+        socials: {
+          linkedin: "salman-faariz-37b892194",
+          discord: "Salman Faariz#0524",
+        },
+      },
+      {
+        name: "Venkitesh S. Anand",
+        imageURL: "/assets/images/team/2020-2021/Venkitesh.PNG",
+        role: "App Developer",
+        team: "Technical Team",
+        socials: {
+          discord: "SoulPlayer23#7948",
+        },
+      },
+      {
+        name: "Amal Joe R S",
+        imageURL: "/assets/images/team/2020-2021/amal.png",
+        role: "App Developer",
+        team: "Technical Team",
+        socials: {
+          linkedin: "amal-joe-r-s-16a50918b",
+          discord: "Amal Joe#6191",
+        },
+      },
+      {
+        name: "Navaneeth Venu",
+        imageURL: "/assets/images/team/2020-2021/navaneeth.png",
+        role: "Graphic Designer",
+        team: "Design Team",
+        socials: {
+          linkedin: "navaneethvenu",
+          github: "navaneethvenu",
+          instagram: "nauaneeth",
+          twitter: "navaneethvenu",
+          discord: "Alternaet#6890",
+        },
+      },
+      {
+        name: "Govind B Chandran",
+        imageURL: "/assets/images/team/2020-2021/govind.png",
+        role: "Web Developer",
+        team: "Technical Team",
+        socials: {
+          linkedin: "govind-chandran-46821a193",
         },
       },
     ],
   },
   "21-22": {
-    description: "The 2021-2022 team focused on innovation and community engagement, launching several successful projects and initiatives.",
+    description:
+      "The 2021-2022 team focused on innovation and community engagement, launching several successful projects and initiatives.",
     teamMembers: [
       {
         name: "Reese Thompson",
@@ -202,7 +335,8 @@ export const tenureList: Record<string, TenureEntry> = {
     ],
   },
   "22-23": {
-    description: "In 2022-2023, we expanded our reach and launched groundbreaking projects, solidifying our position as a leading tech community.",
+    description:
+      "In 2022-2023, we expanded our reach and launched groundbreaking projects, solidifying our position as a leading tech community.",
     teamMembers: [
       {
         name: "Kai Patel",
@@ -267,7 +401,8 @@ export const tenureList: Record<string, TenureEntry> = {
     ],
   },
   "23-24": {
-    description: "The 2023-2024 team is driving innovation and community growth to new heights, focusing on emerging technologies and global collaboration.",
+    description:
+      "The 2023-2024 team is driving innovation and community growth to new heights, focusing on emerging technologies and global collaboration.",
     teamMembers: [
       {
         name: "Jude Patel",
