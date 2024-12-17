@@ -20,6 +20,16 @@ const getTeamStyles = (
       border: "border-borderEmTertiary",
       badge: "bg-backgroundEmTertiary",
     },
+    "Organizing Team": {
+      avatar: "bg-backgroundEmTertiary",
+      border: "border-borderEmTertiary",
+      badge: "bg-backgroundEmTertiary",
+    },
+    "Organising Team": {
+      avatar: "bg-backgroundEmTertiary",
+      border: "border-borderEmTertiary",
+      badge: "bg-backgroundEmTertiary",
+    },
     "Technical Team": {
       avatar: "bg-backgroundEmSecondary",
       border: "border-borderEmSecondary",
