@@ -1,7 +1,15 @@
+import { ArrowUpRight } from "lucide-react";
+import Link from "next/link";
 import React from "react";
 import Marquee from "react-fast-marquee";
 
-const data = ["UXTopia", "Not just a regular design event", "Nov 15-21"];
+const data = [
+  "GDSC MBCET has officially shut its doors.",
+  <Link href={"/blog/the-journey-continues"} key={1} className="flex">
+    Learn more
+    <ArrowUpRight width={16}></ArrowUpRight>
+  </Link>,
+];
 
 const MarqueeContainer = () => {
   return (
